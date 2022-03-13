@@ -1,0 +1,11 @@
+{
+  "name": "points_kinkhel",
+  "version": "0.0.1",
+  "description": "All The Points Of Kinkhel",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Akdroid Nepal",
+  "license": "ISC"
+}
