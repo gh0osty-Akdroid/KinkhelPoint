@@ -20,3 +20,5 @@ app.use('/api', apiRoutes())
 app.listen(port, () => {
     console.log(`http://localhost:${port}`)
 })
+
+//TODO -- ALL RELATIONS OF ALL TABLES
