@@ -1,6 +1,7 @@
 const { STRING, BOOLEAN } = require('sequelize')
 const Sequelize = require('sequelize')
 const db = require('../config/db')
+const responses = require('../utilities/responses')
 
 const User = db.define('User',{
     name: {
@@ -59,7 +60,19 @@ const User = db.define('User',{
 })
 
 
-
 User.sync({alter:true})
 
-module.exports = User
+const createUser = async (data) => {
+    const user = User.build({
+        'name': data.name,
+        'phone': data.phone,
+        'email':data.email,
+        'user_name': data.user_name,
+        'password': data.password,
+        'image': data.image,
+        'role': data.role
+    })
+    return await user.save().catch(err=>responses.serverError(res,err))
+} 
+
+module.exports = {User, createUser}

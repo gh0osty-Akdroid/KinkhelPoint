@@ -27,3 +27,13 @@ exports.unauthorizedError = (res, err) => {
     res.writeHead(401, { 'Content-Type': 'application/json; charset=utf-8' })
     return res.end(JSON.stringify({ error: err }))
 }
+
+exports.forbiddenError = (res, err) => {
+    res.writeHead(403, { 'Content-Type': 'application/json; charset=utf-8' })
+    return res.end(JSON.stringify({ error: err }))
+}
+
+exports.dataAccepted = (res) => {
+    res.writeHead(202, { 'Content-Type': 'application/json; charset=utf-8' })
+    return res.end(JSON.stringify({ error: null }))
+}
