@@ -70,7 +70,6 @@ const User = db.define('User', {
 
 User.sync({ alter: true })
 
-
 const createUser = async (data, res) => {
     if (data.image) {
         var image = await addImage(data.image)

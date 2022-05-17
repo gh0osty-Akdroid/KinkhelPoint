@@ -5,7 +5,7 @@ const db = require('../config/db')
 
 const Session = db.define("Session" ,{
     user_id :{
-        type: STRING,
+        type: INTEGER,
         references:{
             model:"user",
             key:"id"
@@ -24,7 +24,7 @@ const Session = db.define("Session" ,{
         type:STRING,
         allowNull:true
     }
-}, {tableName:"session"})
+}, {tableName:"sessions"})
 
 Session.sync({alter:false})
 
