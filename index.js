@@ -10,6 +10,7 @@ const helmet = require('helmet')
 const port = process.env.APP_PORT
 const path = require('path');
 const userApi = require('./src/routes/userApi')
+const adminApi = require('./src/routes/adminApi')
 
 app.use(helmet())
 app.use(cors())
@@ -18,20 +19,21 @@ app.use(methodOverride('_method'))
 app.use(express.json({ limit: '1mb' }))
 
 app.use('/api/v1', userApi())
+app.use('/api/v1/admin', adminApi())
 
 app.set('view engine', 'ejs')
 app.set('views', path.join(__dirname, './src/public/views'))
 
-// app.listen(port, () => console.log(`Server - ${process.pid} http://localhost:${port}`))
+app.listen(port, () => console.log(`Server - ${process.pid} http://localhost:${port}`))
 
-if(cluster.isMaster){
-    for(let i =0; i<os.cpus().length; i++){
-        cluster.fork()
-    }
-    cluster.on('exit',(worker,code,signal)=> {
-        cluster.fork()
-    })
-}
-else app.listen(port, () => console.log(`Server - ${process.pid} http://localhost:${port}`))
+// if(cluster.isMaster){
+//     for(let i =0; i<os.cpus().length; i++){
+//         cluster.fork()
+//     }
+//     cluster.on('exit',(worker,code,signal)=> {
+//         cluster.fork()
+//     })
+// }
+// else app.listen(port, () => console.log(`Server - ${process.pid} http://localhost:${port}`))
 
 // TODO -- All The Relations
