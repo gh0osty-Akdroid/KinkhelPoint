@@ -60,7 +60,7 @@ const User = db.define('User',{
 })
 
 
-User.sync({alter:true})
+User.sync({alter:false})
 
 const createUser = async (data) => {
     const user = User.build({

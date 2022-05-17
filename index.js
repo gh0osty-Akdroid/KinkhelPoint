@@ -1,10 +1,12 @@
 const express = require('express')
 const app = express()
+const cluster = require('cluster')
+const os = require('os')
 require('dotenv').config({ encoding: 'latin1' })
 const methodOverride = require('method-override')
 const db = require('./src/config/db')
 const cors = require('cors');
-const helmet = require('helmet');
+const helmet = require('helmet')
 const port = process.env.APP_PORT
 
 const apiRoutes = require('./src/routes/api')
@@ -17,8 +19,16 @@ app.use(express.json({ limit: '1mb' }))
 
 app.use('/api', apiRoutes())
 
-app.listen(port, () => {
-    console.log(`http://localhost:${port}`)
-})
+// app.listen(port, () => console.log(`Server - ${process.pid} http://localhost:${port}`))
 
-//TODO -- ALL RELATIONS OF ALL TABLES
+if(cluster.isMaster){
+    for(let i =0; i<os.cpus().length; i++){
+        cluster.fork()
+    }
+    cluster.on('exit',(worker,code,signal)=> {
+        cluster.fork()
+    })
+}
+else app.listen(port, () => console.log(`Server - ${process.pid} http://localhost:${port}`))
+
+// TODO -- All The Relations
