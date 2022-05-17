@@ -23,7 +23,6 @@ exports.Login = async (req, res) => {
         await bcrypt.compare(password, user.password, async function (err, result) {
             if (result === true) {
                 const token = await generateAcessToken(user)
-                const userDetails = await User.findOne({where: {id :user.id}, include:[{model:"addresses"}, {model:"points"}, {model:"points_details"}]})
                 res.cookie('jwt', token, { httpOnly: true, sameSite: 'None', maxAge: 86400000, secure: true })
                 return responses.dataSuccess(res, { token: token, user: user })
             }
