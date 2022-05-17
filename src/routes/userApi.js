@@ -2,8 +2,8 @@ const express = require('express')
 const routes = express.Router()
 const User = require('../models/User')
 
-const authController = require('../controllers/AuthController')
-const { RegisterValidators } = require('../validators.js/AuthValidators')
+const authController = require('../controllers/User/AuthController')
+const { RegisterValidators } = require('../validators/AuthValidators')
 
 module.exports = () => {
     

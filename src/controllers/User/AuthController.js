@@ -1,6 +1,6 @@
-const db = require("../config/db")
-const { createUser, User } = require("../models/User")
-const responses = require("../utilities/responses")
+const db = require("../../config/db")
+const { createUser, User } = require("../../models/User")
+const responses = require("../../utilities/responses")
 const jwt = require('jsonwebtoken');
 const Randomstring = require('randomstring')
 const bcrypt = require('bcrypt')
