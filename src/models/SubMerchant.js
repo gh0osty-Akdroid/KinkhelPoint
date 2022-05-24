@@ -3,7 +3,7 @@ const Sequelize = require('sequelize')
 const db = require('../config/db')
 const { serverError } = require('../utilities/responses')
 
-const Merchant = db.define('Merchant',{
+const SubMerchant = db.define('SubMerchant',{
     user_id: {
         allowNull: false,
         type: INTEGER,
@@ -12,7 +12,15 @@ const Merchant = db.define('Merchant',{
             key: 'id'
         }
     },
-    merchant_code: {
+    merchant_id: {
+        allowNull: false,
+        type: INTEGER,
+        references: {
+            model: 'users',
+            key: 'id'
+        }
+    },
+    submerchant_code: {
         allowNull: false,
         type: STRING,
         unique: true
@@ -35,22 +43,12 @@ const Merchant = db.define('Merchant',{
         defaultValue:false
     }
 
-},{tableName: 'merchants'})
+},{tableName: 'sub_merchants'})
 
-Merchant.sync({alter:true})
-
-const t = await db.transaction
-const createMerchant = async (user, data, res) =>{
-    try {
-        await Merchant.build({
-            user_id :user,
-            merchant_code : 
-        })
-                
-    } catch (err) {
-        return serverError(res)        
-    }
-}
+SubMerchant.sync({alter:true})
 
 
-module.exports = {Merchant, createMerchant}
+
+
+
+module.exports = SubMerchant

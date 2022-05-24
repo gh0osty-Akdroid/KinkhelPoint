@@ -1,6 +1,6 @@
 const { body, check, validationResult } = require("express-validator")
-const { User } = require("../models/User")
-const responses = require("../utilities/responses")
+const { User } = require("../../models/User")
+const responses = require("../../utilities/responses")
 
 
 
@@ -30,6 +30,18 @@ exports.RegisterValidators = [
     .isLength({max: 100 }).withMessage('Name should not exceed 50 letters').bail(),
     check('password').notEmpty().withMessage('Please enter a valid password')
     .isLength({ min: 8, max: 50 }).withMessage('Your Password Strength Is Not Good Enough').bail(),
+    async (req, res, next) => {
+        const err = validationResult(req)
+        if(!err.isEmpty()){
+            return responses.validatonError(res, err)
+        }
+        next()
+    }
+]
+
+exports.LoginValidators = [
+    check('email').notEmpty().withMessage('Please enter a valid value.').bail(),
+    check('password').notEmpty().withMessage('Please enter a valid password').bail(),
     async (req, res, next) => {
         const err = validationResult(req)
         if(!err.isEmpty()){

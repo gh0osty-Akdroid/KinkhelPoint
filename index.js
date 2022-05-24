@@ -9,7 +9,12 @@ const cors = require('cors');
 const helmet = require('helmet')
 const port = process.env.APP_PORT
 const path = require('path');
-const apiRoutes = require('./src/routes/api')
+const userApi = require('./src/routes/userApi')
+const adminApi = require('./src/routes/adminApi')
+const merchantApi = require('./src/routes/merchantApi')
+const pointsApi = require('./src/routes/adminApi')
+
+
 
 app.use(helmet())
 app.use(cors())
@@ -17,7 +22,10 @@ app.use(express.urlencoded({ limit: '1mb', extended: true }));
 app.use(methodOverride('_method'))
 app.use(express.json({ limit: '1mb' }))
 
-app.use('/api/v1', apiRoutes())
+app.use('/api/v1/user', userApi())
+app.use('/api/v1/merchant', merchantApi())
+app.use('/api/v1/points', pointsApi())
+app.use('/api/v1/admin', adminApi())
 
 app.set('view engine', 'ejs')
 app.set('views', path.join(__dirname, './src/public/views'))

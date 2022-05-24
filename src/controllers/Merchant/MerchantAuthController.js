@@ -1,6 +1,8 @@
-const db = require("../config/db")
-const { createUser, User } = require("../models/User")
-const responses = require("../utilities/responses")
+const db = require("../../config/db")
+const { createUser, User } = require("../../models/User")
+const {Merchant, createMerchant} = require('../../models/Merchant')
+const SubMerchant = require('../../models/Merchant')
+const responses = require("../../utilities/responses")
 const jwt = require('jsonwebtoken');
 const Randomstring = require('randomstring')
 const bcrypt = require('bcrypt')
@@ -19,7 +21,7 @@ const generateAcessToken = async (user) => {
 exports.Login = async (req, res) => {
     const { email, password } = req.body
     try {
-        const user = User.findOne({ where: { email: email } }) || User.findOne({ where: { phone: phone } })
+        const user = Merchant.findOne({ where: { email: email } }) || User.findOne({ where: { phone: phone } })
         await bcrypt.compare(password, user.password, async function (err, result) {
             if (result === true) {
                 const token = await generateAcessToken(user)
@@ -37,12 +39,16 @@ exports.Login = async (req, res) => {
 exports.Register = async (req, res) => {
     const body = req.body
     try {
-        const result = await createUser(body, res)
+        const result = await createUser(body, res)  
+        const merchant  = await createMerchant(result.id, body, res)
         return responses.blankSuccess(res)
     } catch (err) {
         return responses.serverError(res, err)
     }
 }
+
+
+
 
 
 exports.Address = async(req, res) =>{
