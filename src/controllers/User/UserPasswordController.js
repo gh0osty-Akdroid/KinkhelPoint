@@ -12,7 +12,7 @@ const { sendEmail } = require("../../utilities/mailer");
 exports.forget_pwd = async (req, res) => {
     const body = req.body
     const tokens = await Math.random().toString().substring(2, 8)
-    const user_ = await User.findOne({ where: { email: body.email } }).then(() => {
+    const user_ = await User.findOne({ where: { email: body.email } }).then(async () => {
         const user = await ForgetPassword.findOne({ where: { user_id: user_.id } })
         if (!user) {
             const token = ForgetPassword.build({
@@ -39,7 +39,7 @@ exports.forget_pwd = async (req, res) => {
 exports.reset_pwd = async (req, res) => {
     const email = req.params.email
     const token = req.body.token
-    const user = User.findOne({ where: { email: email } }).then(() => {
+    const user = User.findOne({ where: { email: email } }).then(async () => {
         const user_ = await ForgetPassword.findOne({ where: { token: token, user: email } })
         if (user_) {
             responses.dataSuccess(res, user)

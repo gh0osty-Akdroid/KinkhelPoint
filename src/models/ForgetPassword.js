@@ -1,8 +1,13 @@
-const { STRING, BOOLEAN, INTEGER, DOUBLE, TEXT } = require('sequelize')
+const { STRING, BOOLEAN, INTEGER, DOUBLE, TEXT, BIGINT } = require('sequelize')
 const Sequelize = require('sequelize')
 const db = require('../config/db')
 
 const ForgetPassword = db.define('ForgetPassword',{
+    id: {
+        type: BIGINT,
+        autoIncrement: true,
+        primaryKey: true
+    },
     token: {
         allowNull:false,
         type: STRING,

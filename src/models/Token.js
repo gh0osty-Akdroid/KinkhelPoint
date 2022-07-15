@@ -1,8 +1,13 @@
-const { STRING, BOOLEAN, INTEGER, DOUBLE, TEXT } = require('sequelize')
+const { STRING, BOOLEAN, INTEGER, DOUBLE, TEXT, BIGINT } = require('sequelize')
 const Sequelize = require('sequelize')
 const db = require('../config/db')
 
 const Token = db.define('tokens',{
+    id: {
+        type: BIGINT,
+        autoIncrement: true,
+        primaryKey: true
+    },
     user_id: {
         allowNull: false,
         type: INTEGER,

@@ -1,10 +1,15 @@
-const { STRING, BOOLEAN, INTEGER, DOUBLE, TEXT, INET } = require('sequelize')
+const { STRING, BOOLEAN, INTEGER, DOUBLE, TEXT, BIGINT } = require('sequelize')
 const Sequelize = require('sequelize')
 const db = require('../config/db')
 const { generateMerchantId, generateId } = require('../utilities/random')
 const { serverError } = require('../utilities/responses')
 
 const Merchant = db.define('Merchant', {
+    id: {
+        type: BIGINT,
+        autoIncrement: true,
+        primaryKey: true
+    },
     user_id: {
         allowNull: false,
         type: INTEGER,

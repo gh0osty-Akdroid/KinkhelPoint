@@ -4,6 +4,10 @@ exports.generateId = () => {
 }
 
 
+exports.generateUId = () => {
+    return parseInt(randomstring.generate({charset: 'numeric', length: 12}))
+}
+
 
 exports.generateMerchantId = () => {
     return parseInt(randomstring.generate({charset: 'numeric', length: 9}))

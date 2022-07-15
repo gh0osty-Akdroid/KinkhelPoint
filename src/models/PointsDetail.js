@@ -1,8 +1,13 @@
-const { STRING, BOOLEAN, INTEGER, DOUBLE, TEXT } = require('sequelize')
+const { STRING, BOOLEAN, INTEGER, DOUBLE, TEXT,BIGINT } = require('sequelize')
 const Sequelize = require('sequelize')
 const db = require('../config/db')
 
 const PointsDetail = db.define('PointsDetail',{
+    id: {
+        type: BIGINT,
+        autoIncrement: true,
+        primaryKey: true
+    },
     point_id: {
         allowNull:false,
         type: INTEGER,

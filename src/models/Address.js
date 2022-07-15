@@ -1,8 +1,13 @@
-const { STRING, BOOLEAN, INTEGER } = require('sequelize')
+const { STRING, BOOLEAN, INTEGER, BIGINT } = require('sequelize')
 const Sequelize = require('sequelize')
 const db = require('../config/db')
 
 const Address = db.define('Address',{
+    id: {
+        type: BIGINT,
+        autoIncrement: true,
+        primaryKey: true
+    },
     user_id: {
         allowNull: false,
         type: INTEGER,

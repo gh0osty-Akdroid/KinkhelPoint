@@ -1,10 +1,15 @@
-const { STRING, BOOLEAN, INTEGER, DOUBLE, TEXT } = require('sequelize')
+const { STRING, BOOLEAN, INTEGER, DOUBLE, TEXT, BIGINT } = require('sequelize')
 const Sequelize = require('sequelize')
 const db = require('../config/db')
 const { serverError } = require('../utilities/responses')
 
 
 const Session = db.define("Session" ,{
+    id: {
+        type: BIGINT,
+        autoIncrement: true,
+        primaryKey: true
+    },
     user_id :{
         type: INTEGER,
         references:{
