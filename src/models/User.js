@@ -9,6 +9,7 @@ const randomstring = require('randomstring');
 const ejs = require('ejs');
 const { addImage } = require('../utilities/fileHandler')
 const bcrypt = require('bcrypt');
+const { generateId } = require('../utilities/random')
 
 
 const User = db.define('User', {
@@ -87,11 +88,13 @@ const createUser = async (data, res) => {
             'password': hash,
             'image': image,
             'role': data.role
-        }, { transaction }).save()
-        transaction.afterCommit(() => {
+        }, { transaction })
+        
+        await transaction.afterCommit(() => {
+            user.id = generateId()
             user.save()
         })
-        transaction.commit()
+        await transaction.commit()
         return user
     }
     catch (err) {
@@ -111,15 +114,15 @@ User.afterCreate(async user => {
     try {
         const transaction = await db.transaction()
         Otp = await Verification.build({ user_id: user.id, token: otp, isEmail: false }, { transaction })
-        if (user.email) {
-            mail = await Verification.build({ user_id: user.id, token: vCode, isEmail: true }, { transaction })
-            const data = await ejs.renderFile(__dirname + "/../../src/public/views/welcomeMail.ejs", { name: user.name, site: process.env.APP_URL, token: vCode })
-            await sendEmail(user.email, "Welcome!", data)
-        }
+        // if (user.email) {
+        //     mail = await Verification.build({ user_id: user.id, token: vCode, isEmail: true }, { transaction })
+        //     const data = await ejs.renderFile(__dirname + "/../../src/public/views/welcomeMail.ejs", { name: user.name, site: process.env.APP_URL, token: vCode })
+        //     await sendEmail(user.email, "Welcome!", data)
+        // }
         await otpVerfication(user.phone, "subject", otp)
         transaction.afterCommit(() => {
             if (user.email) {
-                mail.save()
+                // mail.save()
             }
             Otp.save()
         })

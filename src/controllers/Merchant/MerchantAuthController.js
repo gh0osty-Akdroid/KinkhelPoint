@@ -25,7 +25,7 @@ exports.Login = async (req, res) => {
         await bcrypt.compare(password, user.password, async function (err, result) {
             if (result === true) {
                 const token = await generateAcessToken(user)
-                res.cookie('jwt', token, { httpOnly: true, sameSite: 'None', maxAge: 86400000, secure: true })
+                res.cookie(`merchantSession ${user.id}`, token, { httpOnly: true, sameSite: 'None', maxAge: 86400000, secure: true })
                 return responses.dataSuccess(res, { token: token, user: user })
             }
             return responses.notFoundError(res, "User with the credential does not found.")
@@ -39,18 +39,14 @@ exports.Login = async (req, res) => {
 exports.Register = async (req, res) => {
     const body = req.body
     try {
-        const result = await createUser(body, res)  
-        const merchant  = await createMerchant(result.id, body, res)
+        const result = await createUser(body, res)
+        console.log(result);
+        if (result){
+            const merchant  = await createMerchant(result.id, body, res)
+        }
         return responses.blankSuccess(res)
     } catch (err) {
-        return responses.serverError(res, err)
+        return err
     }
 }
 
-
-
-
-
-exports.Address = async(req, res) =>{
-    
-}

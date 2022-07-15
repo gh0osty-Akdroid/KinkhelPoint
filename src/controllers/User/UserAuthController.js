@@ -1,5 +1,6 @@
 const db = require("../../config/db")
 const { createUser, User } = require("../../models/User")
+const Session  = require("../../models/Session")
 const responses = require("../../utilities/responses")
 const jwt = require('jsonwebtoken');
 const Randomstring = require('randomstring')
@@ -15,6 +16,18 @@ const generateAcessToken = async (user) => {
     return jwtToken
 }
 
+// const LoginSession = async(req, res, user) =>{
+//     try{
+//         const last login
+//     }    
+    
+//     finally{
+
+//     }
+
+//     return true
+// }
+
 
 exports.Login = async (req, res) => {
     const { email, password } = req.body
@@ -23,7 +36,7 @@ exports.Login = async (req, res) => {
         await bcrypt.compare(password, user.password, async function (err, result) {
             if (result === true) {
                 const token = await generateAcessToken(user)
-                res.cookie('jwt', token, { httpOnly: true, sameSite: 'None', maxAge: 86400000, secure: true })
+                res.cookie(`userSession ${user.id}`, token, { httpOnly: true, sameSite: 'None', maxAge: 86400000, secure: true })
                 return responses.dataSuccess(res, { token: token, user: user })
             }
             return responses.notFoundError(res, "User with the credential does not found.")

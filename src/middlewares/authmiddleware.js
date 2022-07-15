@@ -1,7 +1,5 @@
 exports.AdminMiddleware = async(req, res, next) =>{
-    
     next
-
 }
 
 
