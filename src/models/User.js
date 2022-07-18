@@ -22,10 +22,10 @@ const User = db.define('User', {
         type: STRING,
         allowNull: true
     },
-    uid:{
-        type:BIGINT,
-        unique:true,
-        allowNull:false
+    uid: {
+        type: BIGINT,
+        unique: true,
+        allowNull: true
     },
     phone: {
         allowNull: false,
@@ -88,10 +88,10 @@ const createUser = async (data, res) => {
             'password': hash,
             'role': data.role
         }, { transaction })
-        
+
         await transaction.afterCommit(() => {
             user.id = generateId()
-            user.uid =generateUId()
+            user.uid = generateUId()
             user.save()
         })
         await transaction.commit()
@@ -102,14 +102,13 @@ const createUser = async (data, res) => {
     }
 }
 
-
-
 User.afterCreate(async user => {
     try {
         await Verification.createEmailtoken(user)
         await Verification.createOTPtoken(user)
     } catch (error) {
-        responses.serverError(res, err)
+        console.log(error)
+        // responses.serverError(res, err)
     }
 })
 

@@ -24,6 +24,9 @@ module.exports = () => {
 
     routes.get('/notifications/:user_id', getNotifactions)
     routes.get('/notifications/:user_id/read', readNotifications)
+    routes.post('/otp',authController.otpVerify)
+    routes.get('/otp/:user_id',authController.resendOtp)
+
 
 
 

@@ -14,8 +14,6 @@ const adminApi = require('./src/routes/adminApi')
 const merchantApi = require('./src/routes/merchantApi')
 const pointsApi = require('./src/routes/adminApi')
 
-
-
 app.use(helmet())
 app.use(cors())
 app.use(express.urlencoded({ limit: '1mb', extended: true }));

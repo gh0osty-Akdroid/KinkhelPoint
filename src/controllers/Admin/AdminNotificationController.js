@@ -5,7 +5,7 @@ const { blankSuccess, dataSuccess, notFoundError } = require('../../utilities/re
 exports.createNotification = async (req, res) => {
     const body = req.body
     Notification.createNotification(res, body)
-    blankSuccess(res)
+    // blankSuccess(res)
 }
 
 exports.deleteNotification = async (req, res) => {

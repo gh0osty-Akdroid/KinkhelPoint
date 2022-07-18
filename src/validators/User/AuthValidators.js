@@ -28,7 +28,7 @@ exports.RegisterValidators = [
     }).withMessage('Phone Number is already in use.').bail(),
     check('name').notEmpty().withMessage('Please enter your name.').bail()
     .isLength({max: 100 }).withMessage('Name should not exceed 50 letters').bail(),
-    check('password').notEmpty().withMessage('Please enter a valid password')
+    check('password').notEmpty().withMessage('Please enter a valid password').bail()
     .isLength({ min: 8, max: 50 }).withMessage('Your Password Strength Is Not Good Enough').bail(),
     async (req, res, next) => {
         const err = validationResult(req)

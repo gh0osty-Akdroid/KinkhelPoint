@@ -23,21 +23,16 @@ const generateAcessToken = async (user) => {
 exports.Login = async (req, res) => {
     const { email, password } = req.body
     try {
-        const user = User.findOne({ where: { email: email } }) || User.findOne({ where: { phone: email } })
+        const user = await User.findOne({ where: { phone: email } })
         await bcrypt.compare(password, user.password, async function (err, result) {
-            if (result === true) {
-                createOTPtoken(user)
-                return responses.dataSuccess(res, { user: user })
-            }
-            return responses.notFoundError(res, "User with the credential does not found.")
+            if (result === true) createOTPtoken(user, res)
+            else return responses.notFoundError(res, "User with these credentials cannot be found.")
         })
     } catch (err) {
-        return responses.notFoundError(res, err)
+        return responses.notFoundError(res, "User with these credentials cannot be found.")
     }
 
 }
-
-
 
 
 exports.LoginVerification = async (req, res) => {
@@ -71,11 +66,41 @@ exports.Register = async (req, res) => {
     }
 }
 
+exports.otpVerify = async (req, res) => {
+    const body = req.body
+    await Verification.findOne({ where: { user_id: body.user_id, token: body.token } }).then(v => {
+        if (!v) responses.notFoundError(res, "The Token Cannot Be Verified. Please Try Again.")
+        else responses.blankSuccess(res)
+    })
+}
+
+exports.resendOtp = async (req, res) => {
+    const user_id = req.params.user_id
+    await Verification.findOne({ where: { user_id: user_id } }).then(async v => {
+        if (v) {
+            await v.destroy().then(() => createPhoneToken(user_id, res)).catch(err => responses.serverError(res, err))
+        }
+        else createPhoneToken(user_id, res)
+    })
+}
+
+const createPhoneToken = async (id, res) => {
+    const token = Verification.build({
+        'user_id': id,
+        'token': 123456,
+        "is_email": false
+    })
+
+    await token.save().then(() => {
+        return responses.blankSuccess(res)
+    }).catch(err => console.log(err))
+}
+
 
 exports.emailVerification = async (req, res) => {
     const email = req.params.email
     const vCode = req.params.vCode;
-    User.findOne({ where: { email: email } }).then(async(user) => {
+    User.findOne({ where: { email: email } }).then(async (user) => {
         if (user.email_verified) responses.dataSuccess(res, "The email has already been verified.")
         Verification.findOne({ where: { user_id: user.id }, order: [['createdAt', 'DESC']] }).then(async (data) => {
             if (data.token === vCode && data.is_email) {
@@ -83,16 +108,16 @@ exports.emailVerification = async (req, res) => {
             }
             else responses.validatonError(res, "Token is either expired or not found.")
         })
-    }).catch((err)=>{
+    }).catch((err) => {
         responses.notFoundError(res, "User Not Found with given email")
     })
 }
 
 exports.NewEmailVerificationLink = async (req, res) => {
     const email = req.params.email
-    await User.findOne({ where: { email: email } }).then((data)=>{
-        if(data.email_verified) responses.blankSuccess(res)
-        createEmailtoken(data,res)
+    await User.findOne({ where: { email: email } }).then((data) => {
+        if (data.email_verified) responses.blankSuccess(res)
+        createEmailtoken(data, res)
         responses.dataSuccess(res, "Email with new link has been sent")
     })
 }
