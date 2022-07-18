@@ -63,12 +63,12 @@ exports.ResendLoginOtp = async (req, res) => {
 
 exports.Register = async (req, res) => {
     const body = req.body
-    try {
-        const result = await createUser(body, res)
+    // try {
+        const result = await createUser(res, body)
         return responses.blankSuccess(res)
-    } catch (err) {
-        return responses.serverError(res, err)
-    }
+    // } catch (err) {
+    //     return responses.serverError(res, err)
+    // }
 }
 
 

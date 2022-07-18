@@ -22,10 +22,10 @@ const User = db.define('User', {
         type: STRING,
         allowNull: true
     },
-    uid:{
-        type:BIGINT,
-        unique:true,
-        allowNull:false
+    uid: {
+        type: BIGINT,
+        unique: true,
+        allowNull: false
     },
     phone: {
         allowNull: false,
@@ -76,22 +76,22 @@ const User = db.define('User', {
 
 User.sync({ alter: true })
 
-const createUser = async (data, res) => {
-    var hash = await bcrypt.hash(data.password, 10)
+const createUser = async (res, body) => {
+    var hash = await bcrypt.hash(body.password, 10)
     try {
         const transaction = await db.transaction()
         const user = await User.build({
-            'name': data.name,
-            'phone': data.phone,
-            'email': data.email,
-            'uid': data.user_name,
+            'name': body.name,
+            'phone': body.phone,
+            'email': body.email,
+            'uid': generateUId(),
             'password': hash,
-            'role': data.role
+            'role': body.role
         }, { transaction })
-        
+
         await transaction.afterCommit(() => {
             user.id = generateId()
-            user.uid =generateUId()
+            user.uid = generateUId()
             user.save()
         })
         await transaction.commit()
@@ -105,12 +105,8 @@ const createUser = async (data, res) => {
 
 
 User.afterCreate(async user => {
-    try {
-        await Verification.createEmailtoken(user)
-        await Verification.createOTPtoken(user)
-    } catch (error) {
-        responses.serverError(res, err)
-    }
+    await Verification.createEmailtoken(user, res)
+    await Verification.createOTPtoken(user, res)
 })
 
 

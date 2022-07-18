@@ -8,7 +8,7 @@ const PointBonusValidator = require('../validators/Admin/AdminPointBonusValidato
 // Controllers
 const PointConfigController = require('../controllers/Admin/AdminPointConfigController')
 const PointBonusController = require('../controllers/Admin/AdminPointBonusController')
-const { createNotification , deleteNotification} = require('../controllers/Admin/AdminNotificationController')
+const { createNotification , deleteNotification, uniqueNotification} = require('../controllers/Admin/AdminNotificationController')
 
 module.exports = () => {
     
@@ -23,7 +23,8 @@ module.exports = () => {
     routes.put('/pointsBonus',PointBonusValidator.store, PointBonusController.update)
 
     routes.post("/add-notification", createNotification)
-    routes.delete("delete-notification",deleteNotification)
+    routes.get('/get-notifications', uniqueNotification)
+    routes.delete("/delete-notification/:uid",deleteNotification)
 
     return routes
 
