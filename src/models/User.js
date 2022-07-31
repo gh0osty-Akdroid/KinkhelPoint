@@ -10,6 +10,8 @@ const ejs = require('ejs');
 const { addImage } = require('../utilities/fileHandler')
 const bcrypt = require('bcrypt');
 const { generateId, generateUId, generateCode, generateToken } = require('../utilities/random')
+const { createPoint, Points } = require('./Points')
+const { registerPoint } = require('../utilities/pointHandler')
 
 
 const User = db.define('User', {
@@ -66,7 +68,7 @@ const User = db.define('User', {
         defaultValue: 'Customer',
         allowNull: false,
         validate: {
-            isIn: [['Customer', 'Merchant', 'Admin']]
+            isIn: [['Customer', 'Merchant', 'Admin', "Both"]]
         }
     },
 }, {
@@ -74,13 +76,21 @@ const User = db.define('User', {
 })
 
 
+
+Points.belongsTo(User,{
+    foreignKey:"user_id"
+})
+User.hasOne(Points,{
+    foreignKey:'user_id'
+})
+
 User.sync({ alter: true })
 
 const createUser = async (res, body) => {
     var hash = await bcrypt.hash(body.password, 10)
     try {
         const transaction = await db.transaction()
-        const user = await User.build({
+        const user = User.build({
             'name': body.name,
             'phone': body.phone,
             'email': body.email,
@@ -89,24 +99,23 @@ const createUser = async (res, body) => {
             'role': body.role
         }, { transaction })
 
-        await transaction.afterCommit(() => {
+        await transaction.afterCommit(async () => {
             user.id = generateId()
             user.uid = generateUId()
-            user.save()
+            await user.save()
         })
         await transaction.commit()
-        return user
+        return responses.blankSuccess(res)
     }
     catch (err) {
         return responses.serverError(res, err)
     }
 }
 
-
-
-User.afterCreate(async user => {
-    await Verification.createEmailtoken(user, res)
-    await Verification.createOTPtoken(user, res)
+User.afterCreate(async (user, res) => {
+    await createPoint(user)
+    await registerPoint(null,res,user)
+    // await Verification.createEmailtoken(user, res)
 })
 
 

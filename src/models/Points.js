@@ -1,6 +1,10 @@
 const { STRING, BOOLEAN, INTEGER, DOUBLE, BIGINT } = require('sequelize')
 const Sequelize = require('sequelize')
 const db = require('../config/db')
+const { generateId } = require('../utilities/random')
+const { dataAccepted } = require('../utilities/responses')
+const PointsDetail = require('./PointsDetail')
+const { User } = require('./User')
 
 const Points = db.define('Points',{
     id: {
@@ -27,4 +31,38 @@ const Points = db.define('Points',{
 
 Points.sync({alter:false})
 
-module.exports = Points
+
+
+
+
+
+
+const createPoint = async(user)=>{
+    await Points.build({
+        "user_id":user.phone,
+        "id":generateId()
+    }).save().then((data)=>console.log("created")).catch(err=>console.log('err'))
+}
+
+
+const addMerchantPoints = async (req, res, data)=>{
+
+}
+
+const userPointTransfer = async (req, res, data) =>{
+    const e = await PointsDetail.create(data)
+    e.id = generateId()
+    e.save()
+}
+
+
+const addBonusPoint = async(data)=>{
+    const e = await PointsDetail.create(data)
+    e.id = generateId()
+    await e.save()
+}
+
+
+
+
+module.exports = {Points, createPoint, userPointTransfer, addBonusPoint, addMerchantPoints}

@@ -9,6 +9,8 @@ const ForgetPassword = require("../../models/ForgetPassword");
 const { sendEmail } = require("../../utilities/mailer");
 const saltRounds = 10
 
+
+
 exports.forget_pwd = async (req, res) => {
     const email = req.body.email
     const mode = req.query.mode
@@ -53,7 +55,6 @@ exports.new_pwd = async (req, res) => {
 }
 
 exports.change_password = async (req, res) => {
-    // return res.send(req.headers)
     const body = req.body
     const id = req.user.id
     await User.findOne({ where: { id: id } }).then(async (user) => {
@@ -68,9 +69,5 @@ exports.change_password = async (req, res) => {
         })
     }).catch((err) => responses.serverError(res, err))
 }
-
-
-
-
 
 

@@ -1,12 +1,13 @@
 const { STRING, BOOLEAN, INTEGER, DOUBLE, TEXT, BIGINT } = require('sequelize')
 const Sequelize = require('sequelize')
 const db = require('../config/db')
+const ejs = require('ejs')
 const { sendEmail } = require('../utilities/mailer')
-const { otpVerfication } = require('../utilities/otpHandler')
-const { generateToken, generateCode } = require('../utilities/random')
-const { validatonError, blankSuccess, serverError } = require('../utilities/responses')
+const sendOTP = require('../utilities/otpHandler')
+const { generateToken, generateCode, generateId } = require('../utilities/random')
+const { validatonError, blankSuccess, serverError, dataSuccess } = require('../utilities/responses')
 
-const Verification = db.define('verifications',{
+const Verification = db.define('verifications', {
     id: {
         type: BIGINT,
         autoIncrement: true,
@@ -14,7 +15,7 @@ const Verification = db.define('verifications',{
     },
     user_id: {
         allowNull: false,
-        type: INTEGER,
+        type: BIGINT,
         references: {
             model: 'users',
             key: 'id'
@@ -23,62 +24,62 @@ const Verification = db.define('verifications',{
     token: {
         allowNull: false,
         type: STRING,
-        unique: true
+        unique: false
     },
     is_email: {
         defaultValue: true,
         type: BOOLEAN
     }
-},{
+}, {
     tableName: 'verifications'
 })
 
-Verification.sync({alter:false})
+Verification.sync({ alter: true })
 
-const createOTPtoken = async (user, res) => {
-    try {
-        const token_ = generateToken()
-        const transaction = await db.transaction()
-        const token = await Verification.build({
-            'user_id': user.id,
-            'token': token_,
-            "is_email":false
-        }, { transaction })
-        
-        await transaction.afterCommit(() => {
-            token.id = generateId()
-            otpVerfication(user, "subject",token_ )
-            token.save()
-        })
-        await transaction.commit()
-        return blankSuccess(res)
+const createOTPtoken = async (res, user) => {
+    const checkToken = await Verification.findOne({ where: { user_id: user.id, is_email: false } })
+    if (checkToken) {
+        await checkToken.destroy().then(async() => await createPhoneToken(res, user)).catch(err => serverError(res,err))
     }
-    catch (err) {
-        return serverError(res, err)
-    }
+    else createPhoneToken(res, user)
 }
+
+const createPhoneToken = async (res, user) => {
+    const OTP = generateToken()
+    const token = Verification.build({
+        'user_id': user.id,
+        'token': OTP,
+        "is_email": false
+    })
+
+    await token.save().then(() => {
+        sendOTP(res, user.phone, `Your Verification Code is ${OTP}`)
+    }).catch(err => console.log(err))
+}
+
+
 
 const createEmailtoken = async (user, res) => {
     try {
         const transaction = await db.transaction()
-        const token = await Verification.build({
+        const vCode = generateCode()
+        const token = Verification.build({
             'user_id': user.id,
-            'token': generateCode(),
-            "is_email":true
+            'token': vCode,
+            "is_email": true
         }, { transaction })
-        
+
         await transaction.afterCommit(async () => {
             token.id = generateId()
-            token.save()
-            const data = await ejs.renderFile(__dirname + "/../../src/public/views/welcomeMail.ejs", { name: user.name, site: process.env.APP_URL, token: vCode })
+            await token.save()
+            const data = await ejs.renderFile(__dirname + "/../../src/public/views/welcomeMail.ejs", { user: user, site: process.env.APP_URL, token: vCode })
             await sendEmail(user.email, "Welcome!", data)
-            
+
         })
         await transaction.commit()
-        return blankSuccess(res)
     }
     catch (err) {
-        return serverError(res)
+        return console.log(err)
     }
 }
 
@@ -88,4 +89,4 @@ const createEmailtoken = async (user, res) => {
 
 
 
-module.exports = {Verification, createEmailtoken, createOTPtoken}
+module.exports = { Verification, createEmailtoken, createOTPtoken }

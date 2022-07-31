@@ -2,7 +2,8 @@ const { STRING, BOOLEAN, INTEGER, DOUBLE, TEXT, BIGINT } = require('sequelize')
 const Sequelize = require('sequelize')
 const db = require('../config/db')
 const { generateMerchantId, generateId } = require('../utilities/random')
-const { serverError } = require('../utilities/responses')
+const { serverError, dataAccepted } = require('../utilities/responses')
+const { User } = require('./User')
 
 const Merchant = db.define('Merchant', {
     id: {
@@ -10,9 +11,14 @@ const Merchant = db.define('Merchant', {
         autoIncrement: true,
         primaryKey: true
     },
+    parent_company:{
+        type:STRING,
+        allowNull:true
+    },
     user_id: {
         allowNull: false,
-        type: INTEGER,
+        type: BIGINT,
+        unique:true,
         references: {
             model: 'users',
             key: 'id'
@@ -58,20 +64,31 @@ const Merchant = db.define('Merchant', {
 Merchant.sync({ alter: true })
 
 
+Merchant.belongsTo(User,{
+    foreignKey:"user_id"
+})
+
+User.hasOne(Merchant, {
+    foreignKey:'user_id'
+})
+
+
 const transaction = db.transaction()
-const createMerchant = async (user, data, res) => {
+const createMerchant = async (res, data) => {
     try {
         const merchant = await Merchant.build({
-            user_id: user,
+            user_id: data.user_id,
+            parent_company: data.parent_company,
             merchant_code: generateMerchantId(),
             store_address: data.store_address,
             store_phone: data.store_phone,
             pan_number: data.pan_number,
-            merchant_id: data.merchant_id
+            merchant_id: data.merchant_id,
+            region:data.region
         })
         merchant.id = generateId()
-        merchant.save()
-        return merchant
+        await merchant.save()
+        return dataAccepted(res)
     } catch (err) {
         return serverError(res, err)
     }

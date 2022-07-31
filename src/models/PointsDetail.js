@@ -41,7 +41,7 @@ const PointsDetail = db.define('PointsDetail',{
         type: STRING
     },
     token: {
-        allowNull: false,
+        allowNull: true,
         type: STRING
     },
     other: {
@@ -52,6 +52,6 @@ const PointsDetail = db.define('PointsDetail',{
     tableName: 'points_details'
 })
 
-PointsDetail.sync({alter:false})
+PointsDetail.sync({alter:true})
 
 module.exports = PointsDetail

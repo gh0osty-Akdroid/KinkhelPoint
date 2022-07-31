@@ -3,36 +3,35 @@ const Sequelize = require('sequelize')
 const db = require('../config/db')
 const { generateId } = require('../utilities/random')
 
-const PointConfig = db.define('PointConfig',{
+const MerchantPointConfig = db.define('MerchantPointConfig',{
     id: {
         type: BIGINT,
         autoIncrement: true,
         primaryKey: true
     },
-    site:{
+    mercahnt_id:{
         allowNull: false,
-        type: STRING
+        type: BIGINT,
+        references:{
+            model:"merchants",
+            key:"id"
+        }
     },
     value:{
         allowNull: false,
         defaultValue: 1,
         type: DOUBLE
     },
-    login_points:{
+    amounts:{
         allowNull: false,
         type: DOUBLE,
         defaultValue: 1,
     },
-    register_points: {
-        allowNull: false,
-        type: DOUBLE,
-        defaultValue: 1
-    }
 },{
-    tableName: 'points_configs'
+    tableName: 'merchant_points_configs'
 })
 
-PointConfig.sync({alter:false})
+MerchantPointConfig.sync({alter:true})
 
 
-module.exports = PointConfig
+module.exports = MerchantPointConfig

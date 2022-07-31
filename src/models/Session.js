@@ -4,54 +4,70 @@ const db = require('../config/db')
 const { serverError } = require('../utilities/responses')
 
 
-const Session = db.define("Session" ,{
+const Session = db.define("Session", {
     id: {
         type: BIGINT,
         autoIncrement: true,
         primaryKey: true
     },
-    user_id :{
+    user_id: {
         type: INTEGER,
-        references:{
-            model:"users",
-            key:"id"
+        references: {
+            model: "users",
+            key: "id"
         },
-        allowNull:false
+        allowNull: false
     },
-    device_information:{
+    device_information: {
         type: STRING,
-        allowNull:false,
+        allowNull: false,
     },
-    ip_information:{
-        type:STRING,
-        allowNull:false
+    ip_information: {
+        type: STRING,
+        allowNull: true
     },
-    location:{
-        type:STRING,
-        allowNull:true
+    location: {
+        type: STRING,
+        allowNull: true
+    },
+    access_token: {
+        type: STRING,
+        allowNull: false
     }
-}, {tableName:"sessions"})
+}, { tableName: "sessions" })
 
-Session.sync({alter:false})
+Session.sync({ alter: true })
 
-const t = db.transaction()
 
-const createSession = async (data, res) =>{
+
+const createSession = async (req, user, device, token, info) => {
     try {
-        const session = await Session.build({
-            user_id:data.user.id,
-            device_information:data.device_information,
-            ip_information:data.ip_information,
-            location:data.location
-        }, {t})
-        await t.afterCommit(()=> {
-            session.save()
-        })    
-        await t.commit()        
+        if (device.isMobile) {
+            const session = await Session.build({
+                "user_id": user.id,
+                "device_information": "Mobile",
+                "ip_information": req.ip,
+                "location": "info.location",
+                "access_token": token
+            })
+            await session.save()
+        }
+        else {
+            const session = await Session.build({
+                "user_id": user.id,
+                "device_information": "Web",
+                "ip_information": req.ip,
+                "location": "info.location",
+                "access_token": token
+            })
+            await session.save()
+            return true
+        }
     } catch (err) {
-        serverError(res)
+        return false
     }
 }
 
 
-module.exports = Session
+
+module.exports = { Session, createSession }

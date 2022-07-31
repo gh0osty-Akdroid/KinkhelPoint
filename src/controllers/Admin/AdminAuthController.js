@@ -22,22 +22,18 @@ const generateAcessToken = async (user) => {
 
 exports.Login = async (req, res) => {
     const { email, password } = req.body
-    const merchant = req.merchant
     try {
-        await bcrypt.compare(password, merchant.password, async function (err, result) {
-            if (result === true) await createOTPtoken(res, merchant)
-            else return responses.notFoundError(res, "Merchant with these credentials cannot be found.")
+        const user = req.user
+        if (user.role != "Admin") return responses.unauthorizedError(res, "You Are not authorized to login to this page.")
+        await bcrypt.compare(password, user.password, async function (err, result) {
+            if (result === true) createOTPtoken(res, user)
+            else return responses.notFoundError(res, "User with these credentials cannot be found.")
         })
     } catch (err) {
         return responses.notFoundError(res, err)
     }
 
 }
-
-
-
-
-
 
 
 const checkSession = async (req, res, user, token) => {
@@ -51,15 +47,21 @@ const checkSession = async (req, res, user, token) => {
 }
 
 exports.LoginVerification = async (req, res) => {
-    const merchant = req.merchant
+    const user_ = req.params.user
+    const otp = req.body.otp
     const device = req.useragent
-    const code = req.code
-    const accessToken = await generateAcessToken(merchant)
-    const response = await checkSession(req, res, merchant, accessToken)
-    if (response) responses.dataSuccess(res, { user: merchant, token: accessToken })
-    else responses.serverError(res, e)
-
-
+    let info
+    const user = await User.findOne({ where: { phone: user_ } }) || await User.findOne({ where: { email: user_ } })
+    if (!user) {
+        responses.notFoundError(res, "user cannot be found of following credentials.")
+    } else {
+        Verification.findOne({ where: { user_id: user.id, is_email: false, token: otp } }).then(async (data) => {
+            const accessToken = await generateAcessToken(user)
+            const response = await checkSession(req, res, user, accessToken)
+            if (response) responses.dataSuccess(res, { user: user, token: accessToken })
+            else responses.serverError(res, "err")
+        }).catch(async () => responses.validatonError(res, "Token is either expired or not found."))
+    }
 
 }
 

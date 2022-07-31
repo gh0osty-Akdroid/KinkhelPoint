@@ -3,6 +3,11 @@ exports.blankSuccess = (res) => {
     return res.end(JSON.stringify({ error: null }))
 }
 
+exports.dataCreated = (res, data) => {
+    res.writeHead(201, { 'Content-Type': 'application/json; charset=utf-8' })
+    return res.end(JSON.stringify({ error: null, data: data }))
+}
+
 exports.dataSuccess = (res, data) => {
     res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' })
     return res.end(JSON.stringify({ error: null, data: data }))
@@ -36,4 +41,9 @@ exports.forbiddenError = (res, err) => {
 exports.dataAccepted = (res) => {
     res.writeHead(202, { 'Content-Type': 'application/json; charset=utf-8' })
     return res.end(JSON.stringify({ error: null }))
+}
+
+exports.dataConflict = (res, err) => {
+    res.writeHead(409, { 'Content-Type': 'application/json; charset=utf-8' })
+    return res.end(JSON.stringify({ error: err }))
 }

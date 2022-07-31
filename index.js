@@ -8,15 +8,15 @@ const db = require('./src/config/db')
 const cors = require('cors');
 const helmet = require('helmet')
 const port = process.env.APP_PORT
+const useragent = require('express-useragent')
 const path = require('path');
 const userApi = require('./src/routes/userApi')
 const adminApi = require('./src/routes/adminApi')
 const merchantApi = require('./src/routes/merchantApi')
 const pointsApi = require('./src/routes/adminApi')
 
-
-
 app.use(helmet())
+app.use(useragent.express());
 app.use(cors())
 app.use(express.urlencoded({ limit: '1mb', extended: true }));
 app.use(methodOverride('_method'))

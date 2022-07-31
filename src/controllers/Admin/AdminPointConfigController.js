@@ -11,7 +11,7 @@ exports.show = async (req,res) => {
 
 exports.store = async(req,res) => {
     const body = req.body
-    const pointConfig = PointConfig.build(body)
+    const pointConfig = await PointConfig.build(body)
     pointConfig.id = generateId()
     await pointConfig.save().catch(err=>responses.serverError(res,err)).then(()=>responses.blankSuccess(res))
 }
@@ -25,5 +25,6 @@ exports.destroy = async (req,res) => {
 exports.update = async (req,res) => {
     let pointConfig = new PointConfig()
     pointConfig = req.body.PointConfig
-    await pointConfig.update().then((pc)=>responses.blankSuccess(res)).catch(err=>responses.serverError(res,err))
+    // return res.send(pointConfig)
+    await pointConfig.update(req.body).then((pc)=>responses.blankSuccess(res)).catch(err=>responses.serverError(res,err))
 }

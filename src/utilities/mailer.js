@@ -19,6 +19,6 @@ exports.sendEmail = async (email, subject, data) => {
     }
     
     await transporter.sendMail(mailOptions, async (err, data) => {
-        if (err) responses.serverError(res, err)
+        if (err) console.log(err);
     })
 }

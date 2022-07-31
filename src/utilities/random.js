@@ -4,7 +4,7 @@ exports.generateId = () => {
 }
 
 exports.generateToken = () =>{
-    return Math.random().toString().substring(2, 9)
+    return Math.random().toString().substring(2, 8)
 }
 
 exports.generateCode =() =>{
@@ -17,6 +17,6 @@ exports.generateUId = () => {
 
 
 exports.generateMerchantId = () => {
-    return parseInt(randomstring.generate({charset: 'numeric', length: 9}))
+    return parseInt(randomstring.generate({charset: 'numeric', length: 12}))
 }
 

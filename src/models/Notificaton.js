@@ -13,7 +13,11 @@ const Notification = db.define('Notification', {
     },
     uid: {
         type: BIGINT,
-        allowNull: false
+        allowNull: true,
+        references:{
+            model:'notification_id',
+            key:'uid'
+        }
     },
     user_id: {
         allowNull: false,
@@ -53,6 +57,10 @@ const NotificationID = db.define('NotificationID', {
         autoIncrement: true,
         primaryKey: true
     },
+    notification_msg:{
+        type:STRING,
+        allowNull:false
+    },
     uid: {
         type: BIGINT,
         unique: true,
@@ -62,20 +70,18 @@ const NotificationID = db.define('NotificationID', {
 
 }, { tableName: 'notification_id' })
 
-NotificationID.sync({ alter: false })
+NotificationID.sync({ alter: true })
 
 
 
-// NotificationID.belongsTo(Notification)
 
 
 const createNotification = async (res, data) => {
-    // try {
+    try {
         const uid = generateUId()
-        const user = await User.findAll()
+        const user = await User.findAll({where:{role:'Customer'}})
         if (user.length>0){
-            for (let i = 0; i < user.length; i++) {
-                const element = user[i];
+            user.forEach(async element => {
                 const notification = await Notification.build({
                     'user_id': element.id,
                     "uid": uid,
@@ -83,19 +89,21 @@ const createNotification = async (res, data) => {
                     "app_link": data.app_link,
                     "notification_msg": data.notification_msg,
                 })
-                notification.id = generateId()
-                notification.save()
-            }
-            // await NotificationID.create({ id: generateId(), uid: uid })
+                    notification.id = generateId()
+                    await notification.save()
+            });
+            await NotificationID.create({ id: generateId(), uid: uid, notification_msg:data.notification_msg })
             blankSuccess(res)
-
         }
-//     }
-//     catch (err) {
-//         serverError(res, err)
-//     }
+    }
+    catch (err) {
+        serverError(res, err)
+    }
 }
 
 
 
 module.exports = { Notification, createNotification, NotificationID }
+
+
+
