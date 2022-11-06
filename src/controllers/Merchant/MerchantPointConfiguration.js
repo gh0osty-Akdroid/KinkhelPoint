@@ -3,19 +3,17 @@ const { generateId } = require("../../utilities/random")
 const { blankSuccess, serverError, dataSuccess, notFoundError } = require("../../utilities/responses")
 
 
-
-
-exports.store = async (req,res) => {
-    const body = req.body
-    const pointConfig = MerchantPointConfig.build(body)
-    pointConfig.id = generateId()
-    await pointConfig.save().catch(err=>serverError(res)).then(()=>blankSuccess(res))  
-}
-
 exports.update = async (req,res) => {
-    let pointConfig = new MerchantPointConfig()
-    pointConfig = req.body.PointConfig
-    await pointConfig.update().then((pc)=>responses.blankSuccess(res)).catch(err=>serverError(res,err))
+    try {
+        await MerchantPointConfig.findOne({where:{merchant_id:req.merchant.id}}).then(data =>{
+            data.update(req.body)
+            dataSuccess(res, "Your Point config has been updated.")
+        }).catch(err=>{
+            serverError(res, err)
+        })
+    } catch (err) {
+        
+    }
 }   
 
 exports.destory = async (req,res) => {

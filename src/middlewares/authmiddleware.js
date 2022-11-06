@@ -6,8 +6,10 @@ const ExtractJWT = passportJWT.ExtractJwt;
 const secret_key = process.env.SECRETKEY
 const jwt = require('jsonwebtoken');
 const { User } = require('../models/User');
-const { unauthorizedError, serverError } = require('../utilities/responses');
+const { unauthorizedError, serverError, notFoundError } = require('../utilities/responses');
 const { Merchant } = require('../models/Merchant');
+const { Op } = require('sequelize');
+const UserRoles = require('../models/UserRoles');
 
 
 
@@ -16,18 +18,26 @@ const { Merchant } = require('../models/Merchant');
 exports.AdminMiddleware = async (req, res, next) => {
     var token = req.headers.authorization ? req.headers.authorization.split(' ')[1] : null
     if (token) {
+        req.site= req.headers.site
         await jwt.verify(token, process.env.JWTACESSSECRET, async (err, decode) => {
-            if (err) res.status(403).send('User Is Not Authenticated')
+            if (err) return unauthorizedError(res, "Your login session has been expired.")
             else {
-                await User.findOne({ where: { id: decode.id, phone: decode.phone } }).then((u) => {
-                    if (!u) unauthorizedError(res, err)
-                    else {
-                        if (u.role != "Admin") return unauthorizedError(res, "You are not authorized.")
+                await User.findOne({
+                    where: { id: decode.id, phone: decode.phone },
+                    include: [{
+                        model: UserRoles,
+                        where: { role: { [Op.like]: 'Admin%' } }
+                    }], attributes: { exclude: ["password"] }
+                }).then((u) => {
+                    if (u) {
                         req.user = u
                         next()
                     }
+                    else return unauthorizedError(res, "Your session has been expired. Please login again.")
+                }).catch((err) => {
 
-                }).catch((err) => unauthorizedError(res, "You are not allowed."))
+                    notFoundError(res, "User doesn't found.")
+                })
             }
         })
     }
@@ -38,25 +48,31 @@ exports.AdminMiddleware = async (req, res, next) => {
 
 exports.UserMiddleware = async (req, res, next) => {
     var token = req.headers.authorization ? req.headers.authorization.split(' ')[1] : null
-        if (token) {
+    if (token) {
+        req.site= req.headers.site
         await jwt.verify(token, process.env.JWTACESSSECRET, async (err, decode) => {
-            if (err) serverError(res, "You are not authorized.")
+            if (err) return unauthorizedError(res, "Token has been expired.")
             else {
-                await User.findOne({ where: { id: decode.id, phone: decode.phone } }).then((u) => {
-                    if (!u) unauthorizedError(res, err)
-                    else {
-                        if (u.role != "Customer") {
-                            unauthorizedError(res, "You are not authorized.")
-                        }
+                await User.findOne({
+                    where: { id: decode.id, phone: decode.phone },
+                    include: [{
+                        model: UserRoles,
+                        where: { role: { [Op.like]: '%Customer%' } }
+                    }], attributes: { exclude: ["password"] }
+                }).then((u) => {
+                    if (u) {
                         req.user = u
                         next()
                     }
+                    else return unauthorizedError(res, "Your session has been expired. Please login again dna.")
+                }).catch((err) => {
 
-                }).catch((err) => unauthorizedError(res, "You are not allowed."))
+                    notFoundError(res, "User doesn't found.")
+                })
             }
         })
     }
-    else unauthorizedError(res, "You are not authorized to go into that page.")
+    else return unauthorizedError(res, "You are not authorized to go into that page.")
     next
 }
 
@@ -65,25 +81,31 @@ exports.UserMiddleware = async (req, res, next) => {
 exports.MerchantMiddleware = async (req, res, next) => {
     var token = req.headers.authorization ? req.headers.authorization.split(' ')[1] : null
     if (token) {
+        req.site= req.headers.site
         await jwt.verify(token, process.env.JWTACESSSECRET, async (err, decode) => {
-            if (err) res.status(403).send('User Is Not Authenticated')
+            if (err) return notFoundError(res, 'You are not authorized to access to that page.')
             else {
-                await User.findOne({ where: { id: decode.id, phone: decode.phone } }).then(async(u) => {
-                    if (!u) unauthorizedError(res, err)
-                    else {
-                        if (u.role === "Merchant") {
-                            req.user = u
-                            req.merchant = await Merchant.findOne({where:{user_id:u.id}})
-                            next()
-                        }
-                        else unauthorizedError(res, "You are not authorized.")
-                    }
+                await User.findOne({
+                    where: { id: decode.id, phone: decode.phone },
+                    include: [{
+                        model: UserRoles,
+                        where: { role: { [Op.like]: 'Merchant%' } }
+                    }], attributes: { exclude: ["password"] }
+                }).then(async(u) => {
+                    if (u) {
+                        req.user = u
+                        req.merchant = await Merchant.findOne({ where: { user_id: u.id } })
 
-                }).catch((err) => unauthorizedError(res,err))
+                        next()
+                    }
+                    else return unauthorizedError(res, "Your session has been expired. Please login again.")
+                }).catch((err) => {
+                    unauthorizedError(res, "You are not authorized to go into that page.")
+                })
             }
         })
     }
-    else unauthorizedError(res, "You are not authorized to go into that page.")
+    else unauthorizedError(res, "Your session token has been expired. Please login again.")
     next
 }
 

@@ -9,7 +9,7 @@ const MerchantPointConfig = db.define('MerchantPointConfig',{
         autoIncrement: true,
         primaryKey: true
     },
-    mercahnt_id:{
+    merchant_id:{
         allowNull: false,
         type: BIGINT,
         references:{
@@ -31,7 +31,7 @@ const MerchantPointConfig = db.define('MerchantPointConfig',{
     tableName: 'merchant_points_configs'
 })
 
-MerchantPointConfig.sync({alter:true})
+MerchantPointConfig.sync({alter:false})
 
 
 module.exports = MerchantPointConfig

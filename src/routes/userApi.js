@@ -5,19 +5,36 @@ const authController = require('../controllers/User/UserAuthController')
 const { getNotifactions, readNotifications } = require('../controllers/User/UserNotificationController')
 const passwordController = require('../controllers/User/UserPasswordController')
 const profileController = require('../controllers/User/UserProfileController')
-const { RegisterValidators, LoginValidators } = require('../validators/User/AuthValidators')
+const { RegisterValidators, LoginValidators, LoginVerifyValidators } = require('../validators/User/AuthValidators')
 const { PasswordEmailValidators, PasswordTokenValidators, PasswordValidators } = require('../validators/User/PasswordValidators')
-const {  UserMiddleware } = require('../middlewares/authmiddleware')
+const { UserMiddleware } = require('../middlewares/authmiddleware')
 const voucherController = require('../controllers/User/UserVoucherController')
+const { redeemValidator } = require('../validators/User/voucherValidator')
+const pointController = require('../controllers/User/UserPointsController')
+const gamesController = require('../controllers/User/UserGameController')
+const { getDashboard } = require('../controllers/User/UserDashboardController')
 
+
+const { SiteSettings } = require('../models/SiteConfig')
+const { dataSuccess, notFoundError } = require('../utilities/responses')
 
 module.exports = () => {
 
 
+    routes.get('/dashboard', UserMiddleware, getDashboard)
+
+ routes.get('/sites', async(req, res)=>{
+        await SiteSettings.findAll().then((data)=>{
+            dataSuccess(res, data)
+        }).catch((err)=>{
+            notFoundError(res, err)
+        })
+    })
+
     // Auth Routes   
-    routes.post('/register',RegisterValidators,authController.Register)
-    routes.post('/login',LoginValidators,authController.Login)
-    routes.post('/login-verify/:user', authController.LoginVerification)
+    routes.post('/register', RegisterValidators, authController.Register)
+    routes.post('/login', LoginValidators, authController.Login)
+    routes.post('/login-verify/:user', LoginVerifyValidators, authController.LoginVerification)
     routes.post('/resend-login-code/:user', authController.ResendLoginOtp)
 
 
@@ -25,28 +42,38 @@ module.exports = () => {
     // Password Routes
     routes.post("/forget-password", PasswordEmailValidators, passwordController.forget_pwd),
     routes.post("/reset-password/:email", passwordController.reset_pwd),
-    routes.post("/new-password/:email", PasswordValidators,passwordController.new_pwd)
-    routes.post('/change-password', passwordController.change_password)
+    routes.post("/new-password/:email", PasswordValidators, passwordController.new_pwd)
+    routes.post('/change-password',UserMiddleware, passwordController.change_password)
 
 
     // Profile Routes
-    routes.get('/profile/:uid', profileController.getProfile)
-    routes.put('/profile/:uid', profileController.updateProfile)
+    routes.get('/profile',UserMiddleware, profileController.getProfile)
+    routes.put('/profile',UserMiddleware, profileController.updateProfile)
 
 
 
     // routes.get('/email-verify/:email/:vCode', authController.emailVerificationlength)
     // routes.get('/new-email-code/:email', authController.NewEmailVerificationLink)
-     
+
+    routes.get('/points-details', UserMiddleware, pointController.PointDetails)
+    routes.get('/points', UserMiddleware, pointController.Point)
+
 
     // Voucher Routes
-    routes.post('/redeem-voucher', voucherController.redeem)
+    routes.post('/redeem-voucher', UserMiddleware, redeemValidator, voucherController.redeem)
 
     // Notification Routes
-    routes.get('/notifications/:user_id', getNotifactions)
-    routes.get('/notifications/:user_id/read', readNotifications)
+    routes.get('/notifications/', UserMiddleware, getNotifactions)
+    routes.get('/notifications/read', UserMiddleware, readNotifications)
 
-    
+    // routes Games
+
+    routes.get('/games', gamesController.getGames)
+    routes.get('/game/:id',UserMiddleware ,gamesController.getGame)
+
+
+    routes.post('/play-game',UserMiddleware, gamesController.playGame )
+    routes.get('/played-game',UserMiddleware ,gamesController.playedGames )
 
 
 

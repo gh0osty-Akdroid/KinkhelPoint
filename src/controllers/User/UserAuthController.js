@@ -7,8 +7,11 @@ const useragent = require('express-useragent');
 const bcrypt = require('bcrypt');
 const { createOTPtoken, Verification, createEmailtoken } = require("../../models/Verification");
 const { generateCode } = require("../../utilities/random");
-const { createPoint } = require("../../models/Points");
-
+const { createPoint, Points, addBonusPoint } = require("../../models/Points");
+const PointsDetail = require("../../models/PointsDetail");
+const PointConfig = require('../../models/PointConfig')
+const Merchant = require('../../models/Merchant')
+const SITE_ID = process.env.SITE_ID
 
 const generateAcessToken = async (user) => {
     const jwtToken = await jwt.sign(
@@ -23,7 +26,7 @@ const generateAcessToken = async (user) => {
 exports.Register = async (req, res) => {
     const body = req.body
     const result = await createUser(res, body)
-    
+
 }
 
 
@@ -33,11 +36,11 @@ exports.Register = async (req, res) => {
 exports.Login = async (req, res) => {
     const { phone, password } = req.body
     try {
-        const user = await User.findOne({ where: { phone: phone } }) || await User.findOne({ where: { email: phone } })
-            await bcrypt.compare(password, user.password, async function (err, result) {
-                if (result === true) createOTPtoken(res, user)
-                else return responses.notFoundError(res, "User with these credentials cannot be found.")
-            })
+        const user = req.user
+        await bcrypt.compare(password, user.password, async function (err, result) {
+            if (result === true) createOTPtoken(res, user)
+            else return responses.notFoundError(res, "User with these credentials cannot be found.")
+        })
     } catch (err) {
         return responses.notFoundError(res, err)
     }
@@ -52,30 +55,42 @@ const checkSession = async (req, res, user, token) => {
     if (device.isMobile) data = "Mobile"
     else data = "Web"
     const session = await Session.Session.findOne({ where: { user_id: user.id, device_information: data } })
-    if (session) return session.destroy().then(async()=> await Session.createSession(res, user, device, token, "info"))
-    else await Session.createSession(req, user,device, token,"info")
+    if (session) return session.destroy().then(async () => await Session.createSession(req, res, user, device, token, "info"))
+    else await Session.createSession(req,res, user, device, token, "info")
 }
 
-exports.LoginVerification = async (req, res) => {
-    const user_ = req.params.user
-    const otp = req.body.otp
-    const device = req.useragent
-    let info
-    const user = await User.findOne({ where: { phone: user_ } }) || await User.findOne({ where: { email: user_ } })
-    if (!user) {
-        responses.notFoundError(res, "user cannot be found of following credentials.")
-    } else {
-        Verification.findOne({ where: { user_id: user.id, is_email: false } }).then(async (data) => {
-            if (data.token === otp) {
-                const accessToken = await generateAcessToken(user)
-                const response = await checkSession(req, res, user,accessToken)
-                if (response) responses.dataSuccess(res, { user: user, token: accessToken })
-                else responses.serverError(res,"err")
-            }
-            else responses.validatonError(res, "Token is either expired or not found.")
-        })
+const checkLoginPoint = async (req, res, user) => {
+    const day = new Date().getDay()
+    const time = new Date().getDate()
+    const point = await Points.findOne({ where: { user_id: user.phone, }, include: [{ model: PointsDetail, where: { other: "Login Point" }, order: [["createdAt", "DESC"]], limit: 1 }] })
+    const pointTime = new Date(point.PointsDetails[0].createdAt).getDate()
+    if (pointTime != time) {
+        const pointconfig = await PointConfig.findOne({ where: { site: SITE_ID } })
+        const points = pointconfig.login_points.split(',')
+        point.points += parseFloat(points[day])
+        point.save()
+        const data ={
+            point_id : point.id,
+            points:points[day],
+            remarks:`You have received ${points[day]} as login point Bonus.`,
+            other:`Login Point`,
+        }
+        addBonusPoint(data)
     }
 
+}
+
+
+
+exports.LoginVerification = async (req, res) => {
+    const user = req.user
+    const device = req.useragent
+    const accessToken = await generateAcessToken(user)
+    const response = await checkSession(req, res, user, accessToken)
+    const point = await Points.findOne({ where: { user_id: user.phone } })
+    checkLoginPoint(req, res, user)
+    if (response) return responses.dataSuccess(res, { user: user, token: accessToken, points:point })
+    else return responses.serverError(res, "Something went wrong.")
 }
 
 
@@ -101,7 +116,7 @@ exports.emailVerification = async (req, res) => {
             if (data.token === vCode) {
                 responses.blankSuccess(res)
             }
-            else responses.validatonError(res, "Token is either expired or not found.")
+            else responses.validationError(res, "Token is either expired or not found.")
         })
     }).catch((err) => {
         responses.notFoundError(res, "User Not Found with given email")

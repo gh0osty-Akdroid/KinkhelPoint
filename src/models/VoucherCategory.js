@@ -1,4 +1,5 @@
 const { STRING, BOOLEAN, INTEGER, DOUBLE, TEXT, BIGINT } = require('sequelize')
+const { JSON } = require('sequelize')
 const Sequelize = require('sequelize')
 const db = require('../config/db')
 
@@ -10,7 +11,7 @@ const VoucherCategory = db.define('VoucherCategory', {
         primaryKey: true
     },
     merchant_id: {
-        allowNull: false,
+        allowNull: true,
         type: BIGINT,
         references: {
             model: 'merchants',
@@ -24,7 +25,7 @@ const VoucherCategory = db.define('VoucherCategory', {
     },
     batch: {
         allowNull:false,
-        type: STRING
+        type: JSON(1000)
     },
     total_point:{
         type:DOUBLE,
@@ -39,7 +40,24 @@ const VoucherCategory = db.define('VoucherCategory', {
         type:INTEGER,
         allowNull:false
     },
+    validity: {
+        allowNull: true,
+        type: STRING
+    },
+    site:{
+        type:BIGINT,
+        allowNull:false,
+        references:{
+            model:"site_settings",
+            key:"id"
+        }
+    },
     active:{
+        type:BOOLEAN,
+        defaultValue:true
+    },
+    
+    by_admin:{
         type:BOOLEAN,
         defaultValue:false
 

@@ -10,7 +10,7 @@ const PointsDetail = db.define('PointsDetail',{
     },
     point_id: {
         allowNull:false,
-        type: INTEGER,
+        type: BIGINT,
         references: {
             model: 'points',
             key: 'id'
@@ -52,6 +52,6 @@ const PointsDetail = db.define('PointsDetail',{
     tableName: 'points_details'
 })
 
-PointsDetail.sync({alter:true})
+PointsDetail.sync({alter:false})
 
 module.exports = PointsDetail

@@ -1,26 +1,159 @@
 const { Merchant, createMerchant, } = require('../../models/Merchant')
-const { generateId, generateCode, generateMerchantId } = require('../../utilities/random')
+const { Points, userPointTransfer } = require('../../models/Points')
+const { User, createUser } = require('../../models/User')
+const { generateId, generateCode, generateMerchantId, generateUId, generateSecretKey } = require('../../utilities/random')
 const { dataSuccess, notFoundError, serverError, dataAccepted } = require('../../utilities/responses')
+const bcrypt = require('bcrypt');
+const { addImage } = require('../../utilities/fileHandler')
+const UserRoles = require('../../models/UserRoles')
+const { getPagingData, getPagination } = require('../../utilities/paginator')
+const { Op } = require('sequelize')
 
 
 exports.getMerchant = async (req, res) => {
-    await Merchant.findAll().then(async (data) => dataSuccess(res, data)).catch(async (err) => notFoundError(res, err))
+    const { page, size, site , input} = req.query;
+    const { limit, offset } = await getPagination(page, size);
+    if (!input) {
+        await Merchant.findAndCountAll({ limit: limit, offset: offset, where: { site: req.site } }).then(async (e) => {
+            const data = await getPagingData(e, page, limit)
+            dataSuccess(res, data)
+        }).catch(async (err) => notFoundError(res, err))
+    }
+    else {
+        await Merchant.findAndCountAll({
+            limit: limit, offset: offset, where: {
+                site: req.site,
+                [Op.or]: [
+                    { parent_company: {[Op.iLike]: `%${input}%`}},
+                    {merchant_code: {[Op.iLike]: `%${input}%`}}, 
+                    {store_phone: {[Op.iLike]: `%${input}%`}}
+                    ]
+            },
+        }).then(async (e) => {
+            const data = await getPagingData(e, page, limit)
+            dataSuccess(res, data)
+        }).catch(async (err) => notFoundError(res, err))
+    }
 }
 
 exports.showMerchant = async (req, res) => {
     const merchantId = req.params.id
-    await Merchant.findOne({ where: { mercahnt_id: merchantId } }).then(async (data) => dataSuccess(res, data)).catch(async (err) => notFoundError(res, err))
+    await Merchant.findOne({
+        where: { id: merchantId }, include: {
+            model: User,
+            include: { model: Points },
+            attributes: {
+                exclude: ['password'],
+            }
+        }
+    }).then(async (data) => { dataSuccess(res, data) }).catch(async (err) => notFoundError(res, err))
 }
 
 
-exports.createMerchant = async (req, res) => {
+exports.createMerchants = async (req, res) => {
     const body = req.body
-    const merchant = await createMerchant(res, body)
+    var img
+    if (body.user_id) {
+        const merchant = await createMerchant(res, body)
+    }
+    else {
+        var hash = await bcrypt.hash(body.password, 10)
+        if(body.image !== "") {
+            img = await addImage(body.image) 
+        }
+        const user = await User.build({
+            "id": generateId(),
+            'name': body.name,
+            'phone': body.phone,
+            'email': body.email,
+            "image": img,
+            'uid': generateUId(),
+            'password': hash,
+            "site":req.site
+        })
+        await user.save().then(async ()=>{
+            const merchant = await Merchant.build({
+                id : generateId(),
+                user_id: user.id,
+                parent_company: body.parent_company,
+                merchant_code: generateMerchantId(),
+                store_address: body.store_address,
+                store_phone: body.store_phone,
+                pan_number: body.pan_number,
+                region: body.region,
+                site: req.site
+            }).save().then(async ()=>{
+                await MerchantPointConfig.create({ merchant_id: merchant.id, id: generateId()})
+                const userRoles = await UserRoles.findOne({where:{user_id:user.id}})
+                await userRoles.update({role:body.role})
+                return dataAccepted(res)
+            }).catch((err)=>{
+                return serverError(res, err)
+        }).catch((err)=>{
+            return serverError(res, err)
+        })
+    })
+    }
+    
 }
 
 exports.updateMercahnt = async (req, res) => {
     let merchant = new Merchant()
+    const body = req.body
     merchant = req.body.Merchant
-    await merchant.update().then(async (data) => dataAccepted(res)).catch((err) => serverError(res, err))
+    try {
+        if (body.secret_key === true) {
+            merchant.update({ secret_key: generateSecretKey()})
+            dataSuccess(res,"Secret key Generated.")
+        }
+        else if (body.verified!== null) {
+            console.log(body.verified)
+            merchant.update({ verified: body.verified })
+            dataSuccess(res,"Verification Updated.")
+        } 
+        else{
+            dataSuccess(res, "Nothing updated.")
+        }
+    } catch (err) {
+        serverError(res, err)
+    }
+}
 
+exports.sendPoint = async (req, res) => {
+    const merchantId = req.params.id
+    const body = req.body
+    await Merchant.findOne({
+        where: { id: merchantId }, include: {
+            model: User,
+            include: { model: Points },
+            attributes: {
+                exclude: ['password'],
+            }
+        }
+    }).then(async (data) => {
+        const admin = await Points.findOne({where: {user_id : req.user?.phone}})
+        const point = await Points.findOne({ where: { user_id: data?.User?.phone } })
+        point.points += parseFloat(body.points)
+        const values = {
+            token: null,
+            point_id: point.id,
+            merchant_id: null,
+            points: parseFloat(body.points),
+            remarks: `${body.remarks}`,
+            other: `You received ${parseFloat(body.points)} points from Purchase`,
+        }
+        const adminValues = {
+            token: null,
+            point_id: admin.id,
+            merchant_id: null,
+            points: parseFloat(body.points),
+            remarks: `${body.remarks}`,
+            other: `You sent ${parseFloat(body.points)} points to ${data.parent_company}`,
+        }
+        await point.save()
+        await userPointTransfer(req, res, values)
+        await userPointTransfer(req, res, adminValues)
+
+        dataSuccess(res, data)
+    })
 }

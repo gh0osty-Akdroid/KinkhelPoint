@@ -3,8 +3,8 @@ const { notFoundError, blankSuccess, dataSuccess } = require("../../utilities/re
 
 
 exports.getNotifactions = async (req, res) => {
-    const user_id = req.params.user_id
-    Notification.findAll({ where: { user_id: user_id } }).then((data) => {
+    const user = req.user
+    Notification.findAll({ where: { user_id: user.id } }).then((data) => {
         return dataSuccess(res, data)
     }).catch((err) => {
         return notFoundError(res, "Not found any new Notifications")
@@ -12,8 +12,8 @@ exports.getNotifactions = async (req, res) => {
 }
 
 exports.readNotifications = async (req, res) => {
-    const user_id = req.params.user_id
-    Notification.findAll({ where: { user_id: user_id, seen: false } }).then((data) => {
+    const user = req.user
+    Notification.findAll({ where: { user_id: user.id, seen: false } }).then((data) => {
         data.forEach(e => {
             e.update({ seen: true })
         })

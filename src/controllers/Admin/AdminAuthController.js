@@ -24,10 +24,9 @@ exports.Login = async (req, res) => {
     const { email, password } = req.body
     try {
         const user = req.user
-        if (user.role != "Admin") return responses.unauthorizedError(res, "You Are not authorized to login to this page.")
         await bcrypt.compare(password, user.password, async function (err, result) {
-            if (result === true) createOTPtoken(res, user)
-            else return responses.notFoundError(res, "User with these credentials cannot be found.")
+            if (result === true) await createOTPtoken(res, user)
+            else return responses.notFoundError(res, "Credentials does not match.")
         })
     } catch (err) {
         return responses.notFoundError(res, err)
@@ -42,27 +41,17 @@ const checkSession = async (req, res, user, token) => {
     if (device.isMobile) data = "Mobile"
     else data = "Web"
     const session = await Session.Session.findOne({ where: { user_id: user.id, device_information: data } })
-    if (session) return session.destroy().then(async () => await Session.createSession(res, user, device, token, "info"))
-    else await Session.createSession(req, user, device, token, "info")
+    if (session) return session.destroy().then(async () => await Session.createSession(req,res, user, device, token, "info"))
+    else await Session.createSession(req,res, user, device, token, "info")
 }
 
 exports.LoginVerification = async (req, res) => {
-    const user_ = req.params.user
-    const otp = req.body.otp
+    const user = req.user
     const device = req.useragent
-    let info
-    const user = await User.findOne({ where: { phone: user_ } }) || await User.findOne({ where: { email: user_ } })
-    if (!user) {
-        responses.notFoundError(res, "user cannot be found of following credentials.")
-    } else {
-        Verification.findOne({ where: { user_id: user.id, is_email: false, token: otp } }).then(async (data) => {
-            const accessToken = await generateAcessToken(user)
-            const response = await checkSession(req, res, user, accessToken)
-            if (response) responses.dataSuccess(res, { user: user, token: accessToken })
-            else responses.serverError(res, "err")
-        }).catch(async () => responses.validatonError(res, "Token is either expired or not found."))
-    }
-
+    const accessToken = await generateAcessToken(user)
+    const response = await checkSession(req, res, user, accessToken)
+    if (response) responses.dataSuccess(res, { user: user, token: accessToken })
+    else responses.serverError(res, "Something went wrong")
 }
 
 

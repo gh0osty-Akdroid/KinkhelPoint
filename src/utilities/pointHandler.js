@@ -33,8 +33,10 @@ exports.loginPoint = async(req, res, user) =>{
             point_id : points.id,
             points:pointConfig.login_points,
             remarks:`You have received ${pointConfig.login_points} as login point Bonus.`,
+            
+
         }
-        await addBonusPoint(req, res,data )
+        await addBonusPoint(data )
     } catch (err) {
          return console.log(err)
     }
@@ -47,9 +49,8 @@ exports.bonusPoint = async(req, res, user) =>{
 
 exports.redeemPoints = async(req, res, user, voucher)=>{
     try {
-        const points = await Points.findOne({where:{user_id:user.phone}}).then(()=>{
-            points.update({ points : (points.points + voucher.value)})
-        })
+        const points = await Points.findOne({where:{user_id:user.phone}})
+        points.update({ points : (points.points + voucher.value)})
         const data ={
             point_id : points.id,
             points: voucher.value,

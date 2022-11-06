@@ -1,5 +1,5 @@
 const { check, validationResult } = require("express-validator")
-const PointBonus = require("../../models/PointBonus")
+const {PointBonus} = require("../../models/PointBonus")
 const PointConfig = require("../../models/PointConfig")
 const responses = require("../../utilities/responses")
 
@@ -7,8 +7,8 @@ const responses = require("../../utilities/responses")
 exports.store = [
     check('point_config_id').notEmpty().withMessage('Please Enter A Site To Add Bonus System').bail()
     .custom(async (value, { req, loc, path }) => {
-        const check = await PointConfig.findOne({where: {id: value}})
-        if(check) req.body.PointConfig =check
+        const check = await PointBonus.findOne({where: {id: value}})
+        if(check) req.body.PointBonus =check
         else return Promise.reject()
     }).withMessage('The Entered Site Cannot Be Found.').bail(),
     check('hourly_point').isNumeric().withMessage('Please Enter A Valid Hourly Rate Of Bonus').bail(),
@@ -22,7 +22,7 @@ exports.store = [
 
     (req,res,next) => {
         const err = validationResult(req)
-        if(!err.isEmpty()) return responses.validatonError(res, err)
+        if(!err.isEmpty()) return responses.validationError(res, err)
         next()
     }
 ]
@@ -50,7 +50,7 @@ exports.update = [
     check('daily').isBoolean().withMessage('Please Enter If The Bonus Is Daily').bail(),
     (req,res,next) => {
         const err = validationResult(req)
-        if(!err.isEmpty()) return responses.validatonError(res, err)
+        if(!err.isEmpty()) return responses.validationError(res, err)
         next()
     }
 ]
@@ -65,7 +65,7 @@ exports.destroy = [
 
     (req,res,next) => {
         const err = validationResult(req)
-        if(!err.isEmpty()) return responses.validatonError(res, err)
+        if(!err.isEmpty()) return responses.validationError(res, err)
         next()
     }
 ]

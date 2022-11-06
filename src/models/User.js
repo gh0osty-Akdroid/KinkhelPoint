@@ -12,6 +12,7 @@ const bcrypt = require('bcrypt');
 const { generateId, generateUId, generateCode, generateToken } = require('../utilities/random')
 const { createPoint, Points } = require('./Points')
 const { registerPoint } = require('../utilities/pointHandler')
+const UserRoles = require('./UserRoles')
 
 
 const User = db.define('User', {
@@ -63,12 +64,12 @@ const User = db.define('User', {
         defaultValue: false,
         type: BOOLEAN,
     },
-    role: {
-        type: STRING,
-        defaultValue: 'Customer',
-        allowNull: false,
-        validate: {
-            isIn: [['Customer', 'Merchant', 'Admin', "Both"]]
+    site: {
+        allowNull:true,
+        type: BIGINT,
+        references:{
+            model:"site_settings",
+            key:"id"
         }
     },
 }, {
@@ -76,15 +77,14 @@ const User = db.define('User', {
 })
 
 
+User.hasOne(Points, { foreignKey:"user_id", sourceKey: 'phone',})
 
-Points.belongsTo(User,{
-    foreignKey:"user_id"
-})
-User.hasOne(Points,{
-    foreignKey:'user_id'
-})
+User.hasMany(UserRoles, { foreignKey:"user_id"})
 
-User.sync({ alter: true })
+
+
+
+User.sync({ alter: false })
 
 const createUser = async (res, body) => {
     var hash = await bcrypt.hash(body.password, 10)
@@ -96,6 +96,7 @@ const createUser = async (res, body) => {
             'email': body.email,
             'uid': generateUId(),
             'password': hash,
+            'site': body.site,
             'role': body.role
         }, { transaction })
 
@@ -113,8 +114,12 @@ const createUser = async (res, body) => {
 }
 
 User.afterCreate(async (user, res) => {
+    const check = await UserRoles.findOne({where:{user_id :user.id}})
+    if (!check){
+        await UserRoles.create({user_id:user.id,role:"Customer", id:generateId()})
+    }
     await createPoint(user)
-    await registerPoint(null,res,user)
+    await registerPoint(null, res, user)
     // await Verification.createEmailtoken(user, res)
 })
 

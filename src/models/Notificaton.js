@@ -1,9 +1,11 @@
 const { STRING, BOOLEAN, INTEGER, BIGINT } = require('sequelize')
+const { Op } = require('sequelize')
 const Sequelize = require('sequelize')
 const db = require('../config/db')
 const { generateUId, generateId } = require('../utilities/random')
 const { blankSuccess, serverError } = require('../utilities/responses')
 const { User } = require('./User')
+const UserRoles = require('./UserRoles')
 
 const Notification = db.define('Notification', {
     id: {
@@ -14,9 +16,9 @@ const Notification = db.define('Notification', {
     uid: {
         type: BIGINT,
         allowNull: true,
-        references:{
-            model:'notification_id',
-            key:'uid'
+        references: {
+            model: 'notification_id',
+            key: 'uid'
         }
     },
     user_id: {
@@ -39,6 +41,14 @@ const Notification = db.define('Notification', {
         type: STRING,
         allowNull: false
     },
+    site: {
+        type: BIGINT,
+        allowNull: false,
+        references:{
+            model:"site_settings",
+            key:"id"
+        }
+    },
     seen: {
         defaultValue: false,
         type: BOOLEAN,
@@ -46,7 +56,7 @@ const Notification = db.define('Notification', {
 
 }, { tableName: 'notification' })
 
-Notification.sync({ alter: true })
+Notification.sync({ alter: false })
 
 
 
@@ -57,9 +67,25 @@ const NotificationID = db.define('NotificationID', {
         autoIncrement: true,
         primaryKey: true
     },
-    notification_msg:{
-        type:STRING,
-        allowNull:false
+    web_link: {
+        type: STRING,
+        allowNull: true,
+    },
+    site: {
+        type: BIGINT,
+        allowNull: false,
+        references:{
+            model:"site_settings",
+            key:"id"
+        }
+    },
+    app_link: {
+        type: STRING,
+        allowNull: true
+    },
+    notification_msg: {
+        type: STRING,
+        allowNull: false
     },
     uid: {
         type: BIGINT,
@@ -70,17 +96,22 @@ const NotificationID = db.define('NotificationID', {
 
 }, { tableName: 'notification_id' })
 
-NotificationID.sync({ alter: true })
+NotificationID.sync({ alter: false })
 
 
 
 
 
-const createNotification = async (res, data) => {
+const createNotification = async (req, res, data) => {
     try {
         const uid = generateUId()
-        const user = await User.findAll({where:{role:'Customer'}})
-        if (user.length>0){
+        const user = await User.findAll({ include: [{ model: UserRoles, where: { role: { [Op.like]: "Customer" } } }]})
+        const a = await NotificationID.build({
+            id: generateId(), uid: uid, notification_msg: data.notification_msg, "web_link": data.web_link,
+            "app_link": data.app_link, "site":req.site
+        })
+        await a.save()
+        if (user.length > 0) {
             user.forEach(async element => {
                 const notification = await Notification.build({
                     'user_id': element.id,
@@ -88,11 +119,12 @@ const createNotification = async (res, data) => {
                     "web_link": data.web_link,
                     "app_link": data.app_link,
                     "notification_msg": data.notification_msg,
+                    "site":req.site
                 })
-                    notification.id = generateId()
-                    await notification.save()
+                notification.id = generateId()
+                await notification.save()
             });
-            await NotificationID.create({ id: generateId(), uid: uid, notification_msg:data.notification_msg })
+            
             blankSuccess(res)
         }
     }

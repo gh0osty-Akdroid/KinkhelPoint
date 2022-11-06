@@ -19,7 +19,8 @@ const Points = db.define('Points',{
     },
     user_id: {
         allowNull: false,
-        type: STRING,
+        unique:true,
+        type: STRING({length:15}),
         references: {
             model: 'users',
             key: 'phone'
@@ -36,6 +37,18 @@ Points.sync({alter:false})
 
 
 
+Points.hasMany(PointsDetail,{
+    foreignKey:"point_id",
+    
+
+})
+
+
+
+PointsDetail.belongsTo(Points,{
+    foreignKey:"point_id"
+})
+
 
 const createPoint = async(user)=>{
     await Points.build({
@@ -50,14 +63,14 @@ const addMerchantPoints = async (req, res, data)=>{
 }
 
 const userPointTransfer = async (req, res, data) =>{
-    const e = await PointsDetail.create(data)
+    const e = await PointsDetail.build(data)
     e.id = generateId()
     e.save()
 }
 
 
 const addBonusPoint = async(data)=>{
-    const e = await PointsDetail.create(data)
+    const e = await PointsDetail.build(data)
     e.id = generateId()
     await e.save()
 }

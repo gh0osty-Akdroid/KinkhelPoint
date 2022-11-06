@@ -1,7 +1,9 @@
 const { STRING, BOOLEAN, INTEGER, DOUBLE, TEXT, BIGINT } = require('sequelize')
 const Sequelize = require('sequelize')
 const db = require('../config/db')
+const { generateId } = require('../utilities/random')
 const { serverError } = require('../utilities/responses')
+const { User } = require('./User')
 
 
 const Session = db.define("Session", {
@@ -36,14 +38,15 @@ const Session = db.define("Session", {
     }
 }, { tableName: "sessions" })
 
-Session.sync({ alter: true })
+Session.sync({ alter: false })
 
 
 
-const createSession = async (req, user, device, token, info) => {
+const createSession = async (req, res,user, device, token, info) => {
     try {
         if (device.isMobile) {
             const session = await Session.build({
+                "id":generateId(),
                 "user_id": user.id,
                 "device_information": "Mobile",
                 "ip_information": req.ip,
@@ -54,6 +57,7 @@ const createSession = async (req, user, device, token, info) => {
         }
         else {
             const session = await Session.build({
+                "id":generateId(),
                 "user_id": user.id,
                 "device_information": "Web",
                 "ip_information": req.ip,
@@ -61,13 +65,23 @@ const createSession = async (req, user, device, token, info) => {
                 "access_token": token
             })
             await session.save()
-            return true
+           
         }
+        return true
     } catch (err) {
-        return false
+        return serverError(res, err)
     }
 }
 
+
+Session.belongsTo(User,{
+    foreignKey:"user_id"
+})
+
+
+User.hasOne(Session,{
+    foreignKey:"user_id"
+})
 
 
 module.exports = { Session, createSession }

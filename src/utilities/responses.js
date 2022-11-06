@@ -23,10 +23,12 @@ exports.serverError = (res, err) => {
     return res.end(JSON.stringify({ error: err }))
 }
 
-exports.validatonError = (res, err) => {
+exports.validationError = (res, err) => {
     res.writeHead(406, { 'Content-Type': 'application/json; charset=utf-8' })
     return res.end(JSON.stringify({ error: err }))
 }
+
+
 
 exports.unauthorizedError = (res, err) => {
     res.writeHead(401, { 'Content-Type': 'application/json; charset=utf-8' })

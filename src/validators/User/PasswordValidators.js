@@ -1,7 +1,8 @@
-const ForgetPassword = require("../../models/ForgetPassword")
+
 const { body, check, validationResult } = require("express-validator")
+const ForgetPassword = require("../../models/ForgetPassword")
 const { User } = require("../../models/User")
-const { validatonError } = require("../../utilities/responses")
+const { validationError } = require("../../utilities/responses")
 
 
 
@@ -17,7 +18,7 @@ exports.PasswordEmailValidators = [
    
     (req,res,next) => {
         const err = validationResult(req)
-        if(!err.isEmpty()) return validatonError(res, err)
+        if(!err.isEmpty()) return validationError(res, err)
         next()
     }
 ]
@@ -31,19 +32,19 @@ exports.PasswordEmailValidators = [
 //     }).withMessage('The Entered Token Cannot Be Found.').bail(),
 //     (req,res,next) => {
 //         const err = validationResult(req)
-//         if(!err.isEmpty()) return validatonError(res, err)
+//         if(!err.isEmpty()) return validationError(res, err)
 //         next()
 //     }
 // ]
 
 
 exports.PasswordValidators = [
-    check('password').notEmpty().withMessage('Please Enter Your Token.').bail().matches(
+    check('password').notEmpty().withMessage('Please Enter Your old password.').bail().matches(
         /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])[a-zA-Z\d@$.!%*#?&]/,
       ).withMessage("Please use strong password with numbers, alphabets and special characters.").bail(),
     (req,res,next) => {
         const err = validationResult(req)
-        if(!err.isEmpty()) return validatonError(res, err)
+        if(!err.isEmpty()) return validationError(res, err)
         next()
     }
 ]

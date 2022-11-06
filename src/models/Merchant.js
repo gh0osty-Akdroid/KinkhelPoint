@@ -4,6 +4,8 @@ const db = require('../config/db')
 const { generateMerchantId, generateId } = require('../utilities/random')
 const { serverError, dataAccepted } = require('../utilities/responses')
 const { User } = require('./User')
+const UserRoles = require('./UserRoles')
+
 
 const Merchant = db.define('Merchant', {
     id: {
@@ -46,6 +48,19 @@ const Merchant = db.define('Merchant', {
         type: BOOLEAN,
         defaultValue: false
     },
+    site: {
+        type: BIGINT,
+        allowNull:true,
+        references:{
+            model:"site_settings",
+            key:"id"
+        }
+    },
+    secret_key:{
+        type:STRING, 
+        unique:true,
+        allowNull:true
+    },
     merchant_id: {
         type: INTEGER,
         references: {
@@ -84,15 +99,27 @@ const createMerchant = async (res, data) => {
             store_phone: data.store_phone,
             pan_number: data.pan_number,
             merchant_id: data.merchant_id,
-            region:data.region
+            region:data.region,
+            site:null
         })
         merchant.id = generateId()
         await merchant.save()
+        const userRoles = await UserRoles.findOne({where:{user_id:data.user_id}})
+        await userRoles.update({role:body.role})
         return dataAccepted(res)
+        
     } catch (err) {
         return serverError(res, err)
     }
 }
+
+
+
+
+
+
+Merchant.hasMany(Merchant, {foreignKey:"merchant_id"})
+Merchant.belongsTo(Merchant, {foreignKey:"merchant_id"})
 
 
 module.exports = { Merchant, createMerchant }

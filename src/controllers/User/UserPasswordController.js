@@ -53,20 +53,18 @@ exports.new_pwd = async (req, res) => {
 }
 
 exports.change_password = async (req, res) => {
-    // return res.send(req.headers)
     const body = req.body
-    const id = req.user.id
-    await User.findOne({ where: { id: id } }).then(async (user) => {
-        await bcrypt.compare(body.password, user.password, async function (err, result) {
-            if (result === true) {
-                await bcrypt.hash(body.new_password, saltRounds).then(async (hash) => {
-                    user.update({ password: hash })
-                })
-                return responses.blankSuccess(res)
-            }
-            return responses.validatonError(res, "Old password doesnot match")
+    const user = req.user
+    await User.findOne({where:{id:user.id}}).then(async(data)=>{
+        await bcrypt.compare(body.old_password, data.password, async function (err, result) {
+            if (result !== true) return responses.validationError(res, "Old password doesnot match")
+            await bcrypt.hash(body.new_password, saltRounds).then(async (hash) => {
+                user.update({ password: hash })
+            })
+            return responses.blankSuccess(res)
         })
-    }).catch((err) => responses.serverError(res, err))
+    })
+    
 }
 
 

@@ -5,7 +5,7 @@ const ejs = require('ejs')
 const { sendEmail } = require('../utilities/mailer')
 const sendOTP = require('../utilities/otpHandler')
 const { generateToken, generateCode, generateId } = require('../utilities/random')
-const { validatonError, blankSuccess, serverError, dataSuccess } = require('../utilities/responses')
+const { validationError, blankSuccess, serverError, dataSuccess } = require('../utilities/responses')
 
 const Verification = db.define('verifications', {
     id: {
@@ -34,7 +34,7 @@ const Verification = db.define('verifications', {
     tableName: 'verifications'
 })
 
-Verification.sync({ alter: true })
+Verification.sync({ alter: false })
 
 const createOTPtoken = async (res, user) => {
     const checkToken = await Verification.findOne({ where: { user_id: user.id, is_email: false } })
@@ -47,6 +47,7 @@ const createOTPtoken = async (res, user) => {
 const createPhoneToken = async (res, user) => {
     const OTP = generateToken()
     const token = Verification.build({
+        "id":generateId(),
         'user_id': user.id,
         'token': OTP,
         "is_email": false

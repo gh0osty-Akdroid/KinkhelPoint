@@ -2,7 +2,7 @@ const { STRING, BOOLEAN, INTEGER, DOUBLE, TEXT, BIGINT } = require('sequelize')
 const Sequelize = require('sequelize')
 const db = require('../config/db')
 
-const PointBonus = db.define('PointBonus',{
+const PointBonus = db.define('PointBonus', {
     id: {
         type: BIGINT,
         autoIncrement: true,
@@ -28,10 +28,6 @@ const PointBonus = db.define('PointBonus',{
         allowNull: true,
         type: BOOLEAN
     },
-    daily: {
-        allowNull: true,
-        type: BOOLEAN
-    },
     hourly_point: {
         allowNull: true,
         type: DOUBLE
@@ -40,18 +36,18 @@ const PointBonus = db.define('PointBonus',{
         allowNull: true,
         type: DOUBLE
     },
-    daily_point:{
+    monthly_point: {
         allowNull: true,
         type: DOUBLE
     },
-    monthly_point:{
-        allowNull: true,
-        type: DOUBLE
-    },
-},{
+}, {
     tableName: 'points_bonus'
 })
 
-PointBonus.sync({alter:true})
+PointBonus.sync({ alter: false })
 
-module.exports = PointBonus
+module.exports = { PointBonus }
+
+
+
+

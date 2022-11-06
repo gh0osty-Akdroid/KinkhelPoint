@@ -1,21 +1,30 @@
 const { User } = require("../../models/User")
+const { addImage, removeImage } = require("../../utilities/fileHandler")
 const { dataSuccess } = require("../../utilities/responses")
 
 exports.getProfile = async (req, res) => {
-    const uid = req.params.uid
-    User.findOne({ where: { uid: uid } }).then(async(data)=>{
-         dataSuccess(res, data)
+    const user = req.user
+    User.findOne({ where: { uid: user.uid } }).then(async (data) => {
+        dataSuccess(res, data)
     })
 }
 
 
-exports.updateProfile = async(req, res) =>{
-    const uid = req.params.uid
+exports.updateProfile = async (req, res) => {
+    const user = req.user
     const body = req.body
-    User.findOne({where:{uid:uid}}).then(async(data)=>{
-        await data.update({
-            "name":body.name,
-            "image":body.image,
-        }).then(()=>dataSuccess(res, "Updated."))
-    })
+    const image = await addImage(body.image)
+    if (user.image){
+        await removeImage(user.image)
+        await user.update({
+            "name": body.name,
+            "image": image,
+        }).then(() => dataSuccess(res, "Updated."))
+    }
+    else{
+        await user.update({
+            "name": body.name,
+            "image": image,
+        }).then(() => dataSuccess(res, "Updated."))
+    }
 }

@@ -14,7 +14,7 @@ exports.store = [
     check('register_points').isNumeric().withMessage('Please Enter Valid Register Points').bail(),
     (req, res, next) => {
         const err = validationResult(req)
-        if (!err.isEmpty()) return responses.validatonError(res, err)
+        if (!err.isEmpty()) return responses.validationError(res, err)
         next()
     }
 ]
@@ -38,7 +38,7 @@ exports.update = [
 
     (req, res, next) => {
         const err = validationResult(req)
-        if (!err.isEmpty()) return responses.validatonError(res, err)
+        if (!err.isEmpty()) return responses.validationError(res, err)
         next()
     }
 ]
@@ -53,7 +53,7 @@ exports.destroy = [
 
     (req, res, next) => {
         const err = validationResult(req)
-        if (!err.isEmpty()) return responses.validatonError(res, err)
+        if (!err.isEmpty()) return responses.validationError(res, err)
         next()
     }
 ]

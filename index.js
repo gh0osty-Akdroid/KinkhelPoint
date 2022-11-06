@@ -7,24 +7,33 @@ const methodOverride = require('method-override')
 const db = require('./src/config/db')
 const cors = require('cors');
 const helmet = require('helmet')
+const axios = require('axios')
 const port = process.env.APP_PORT
 const useragent = require('express-useragent')
 const path = require('path');
 const userApi = require('./src/routes/userApi')
 const adminApi = require('./src/routes/adminApi')
 const merchantApi = require('./src/routes/merchantApi')
-const pointsApi = require('./src/routes/adminApi')
+const { User } = require('./src/models/User')
+const { dataSuccess } = require('./src/utilities/responses')
 
-app.use(helmet())
+
+app.use(
+    helmet({
+        crossOriginResourcePolicy: { policy: 'same-site' }
+    })
+)
 app.use(useragent.express());
 app.use(cors())
-app.use(express.urlencoded({ limit: '1mb', extended: true }));
+app.use(express.urlencoded({ limit: '2mb', extended: true }));
 app.use(methodOverride('_method'))
-app.use(express.json({ limit: '1mb' }))
+app.use(express.static(path.join(__dirname, './src/public/Storage/')))
+app.use(express.json({ limit: '2mb' }))
+
+
 
 app.use('/api/v1/user', userApi())
 app.use('/api/v1/merchant', merchantApi())
-app.use('/api/v1/points', pointsApi())
 app.use('/api/v1/admin', adminApi())
 
 app.set('view engine', 'ejs')

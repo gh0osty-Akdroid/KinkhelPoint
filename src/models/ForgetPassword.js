@@ -42,6 +42,7 @@ const createForgetPassword = async(res, user, mode) =>{
     const transaction = await db.transaction()
     const code = generateToken()
     const data = ForgetPassword.build({
+        "id":generateId(),
         'user_id': user.id,
         'token': code, 
         'old_password': user.password,

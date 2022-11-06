@@ -1,9 +1,10 @@
 const { body, check, validationResult } = require("express-validator")
-const Merchant = require("../../models/Merchant")
+const { Merchant } = require("../../models/Merchant")
 const { User } = require("../../models/User")
 const { Verification } = require("../../models/Verification")
 const responses = require("../../utilities/responses")
-
+const { Op } = require("sequelize")
+const UserRoles = require("../../models/UserRoles")
 
 
 exports.RegisterValidators = [
@@ -37,27 +38,27 @@ exports.RegisterValidators = [
     async (req, res, next) => {
         const err = validationResult(req)
         if (!err.isEmpty()) {
-            return responses.validatonError(res, err)
+            return responses.validationError(res, err)
         }
         next()
     }
 ]
 
+
 exports.LoginValidators = [
     check('email').notEmpty().withMessage('Please enter a valid value.').bail()
         .custom(async (value, { req }) => {
-            const user = await User.findOne({ where: { email: value } }) || await User.findOne({ where: { phone: value } })
-            if (user.role === "Merchant") {
-                req.merchant = user
-                return true
-            }
-            else return Promise.reject()
+            const user =  await User.findOne({ where: { phone: value },include: [{ model: UserRoles,  where:{role:{[Op.like]: '%Merchant%'} }}] })
+             if (user){
+              return req.user = user
+              }
+        else return Promise.reject()
         }).withMessage("You are not registered with Merchant.").bail(),
-    check('password').notEmpty().withMessage('Please enter a valid password').bail(),
+        check('password').notEmpty().withMessage('Please enter a valid password').bail(),
     async (req, res, next) => {
         const err = validationResult(req)
         if (!err.isEmpty()) {
-            return responses.validatonError(res, err)
+            return responses.validationError(res, err)
         }
         next()
     }
@@ -67,21 +68,20 @@ exports.LoginValidators = [
 exports.LoginVerifyValidators = [
     check('token').notEmpty().withMessage('Please enter a valid value.').bail()
         .custom(async (value, { req }) => {
-            await User.findOne({ where: { email: req.params.user } }) || await User.findOne({ where: { phone: req.params.user } }).then(async(data)=>{
-                const verify = await Verification.findOne({ where: { user_id: data.id, is_email: false, token:value } })
-                if(verify){
-                    req.code = verify
-                    req.merchant = data
-                    return true
-                }
-                else return Promise.reject()
-            }).catch((err)=> {return Promise.reject()})
+            const data = await User.findOne({ where: { phone: req.params.user }, attributes: {exclude: ['password']}, include:[{model:Merchant}] })
+            const verify = await Verification.findOne({ where: { user_id: data.id, is_email: false, token: value } })
+            if (verify) {
+                req.user = data
+                req.merchant = data.Merchant
+                return true
+            }
+            else return Promise.reject()
         }).withMessage("Your code has been expired. Please get new one.").bail(),
-    
+
     async (req, res, next) => {
         const err = validationResult(req)
         if (!err.isEmpty()) {
-            return responses.validatonError(res, err)
+            return responses.validationError(res, err)
         }
         next()
     }

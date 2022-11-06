@@ -14,7 +14,8 @@ const saltRounds = 10
 exports.forget_pwd = async (req, res) => {
     const email = req.body.email
     const mode = req.query.mode
-    await User.findOne({ where: { email: email } }).then(async (user) => {
+    console.log(email, mode)
+    await User.findOne({ where: { phone: email, role:["Merchant"] } }).then(async (user) => {
         const data = await ForgetPassword.ForgetPassword.findOne({ where: { user_id: user.id } })
         if (!data) {
             await ForgetPassword.createForgetPassword(res, user, mode)
@@ -22,7 +23,7 @@ exports.forget_pwd = async (req, res) => {
         else {
             data.destroy().then(async () => ForgetPassword.createForgetPassword(res, user, mode))
         }
-    }).catch((res) => {
+    }).catch((err) => {
         return responses.notFoundError(res, "User not found with provided email.")
     })
 }
@@ -30,7 +31,7 @@ exports.forget_pwd = async (req, res) => {
 exports.reset_pwd = async (req, res) => {
     const email = req.params.email
     const token = req.body.token
-    await User.findOne({ where: { email: email } }).then(async (user) => {
+    await User.findOne({ where: { phone: phoen } }).then(async (user) => {
         const user_ = await ForgetPassword.ForgetPassword.findOne({ where: { token: token, user_id: user.id } })
         if (user_) {
             responses.blankSuccess(res)
@@ -61,11 +62,11 @@ exports.change_password = async (req, res) => {
         await bcrypt.compare(body.password, user.password, async function (err, result) {
             if (result === true) {
                 await bcrypt.hash(body.new_password, saltRounds).then(async (hash) => {
-                    user.update({ password: hash })
+                    await user.update({ password: hash })
                 })
                 return responses.blankSuccess(res)
             }
-            return responses.validatonError(res, "Old password doesnot match")
+            return responses.validationError(res, "Old password does not match. Please try again with password.")
         })
     }).catch((err) => responses.serverError(res, err))
 }

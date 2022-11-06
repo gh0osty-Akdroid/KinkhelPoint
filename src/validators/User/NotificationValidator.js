@@ -5,7 +5,7 @@ exports.LoginValidators = [
     async (req, res, next) => {
         const err = validationResult(req)
         if(!err.isEmpty()){
-            return responses.validatonError(res, err)
+            return responses.validationError(res, err)
         }
         next()
     }

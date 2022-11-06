@@ -8,7 +8,7 @@ exports.create = [
     check('app_link').notEmpty().withMessage('Please Enter app link').bail(),
     (req, res, next) => {
         const err = validationResult(req)
-        if (!err.isEmpty()) return responses.validatonError(res, err)
+        if (!err.isEmpty()) return responses.validationError(res, err)
         next()
     }
 ]
