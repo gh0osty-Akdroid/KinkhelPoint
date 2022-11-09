@@ -55,8 +55,17 @@ exports.show = async (req, res) => {
 }
 
 exports.update = async (req, res) => {
+
+    let data = new VoucherCategory()
+    data = req.body.VoucherCategory
+    await data.update(req.body).then(() => blankSuccess(res)).catch((err) =>    
+    serverError(res, err)
+    )
     
 }
+
+
+
 exports.delete = async (req, res) => {
     let data = await VoucherCategory.findOne({ where: { id: req.params.id } })
     await data.destroy().then(() => blankSuccess(res)).catch(err => serverError(res, err))

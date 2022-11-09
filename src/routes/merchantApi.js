@@ -73,7 +73,7 @@ routes.get('/verify', MerchantMiddleware, async(req,res)=>{
     // voucher List Routes
     routes.get('/voucher-lists/:id', MerchantMiddleware, voucherList.list)
     routes.post('/voucher-lists/:id', MerchantMiddleware, merchantCategoryValidators.voucherList, voucherList.store)
-    routes.put('voucher-list', MerchantMiddleware, voucherList.update)
+    routes.put('/voucher-list', MerchantMiddleware, voucherList.update)
 
     // Sub-Merchant Controller
     routes.get('/submerchants', MerchantMiddleware, subMerchantController.subMerchant)

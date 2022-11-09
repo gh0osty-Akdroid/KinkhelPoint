@@ -103,6 +103,7 @@ const createUser = async (res, body) => {
         await transaction.afterCommit(async () => {
             user.id = generateId()
             user.uid = generateUId()
+            await UserRoles.create({user_id:user.id,role:"Customer", id:generateId()})
             await user.save()
         })
         await transaction.commit()
@@ -114,10 +115,7 @@ const createUser = async (res, body) => {
 }
 
 User.afterCreate(async (user, res) => {
-    const check = await UserRoles.findOne({where:{user_id :user.id}})
-    if (!check){
-        await UserRoles.create({user_id:user.id,role:"Customer", id:generateId()})
-    }
+   
     await createPoint(user)
     await registerPoint(null, res, user)
     // await Verification.createEmailtoken(user, res)

@@ -27,7 +27,6 @@ exports.AddInventory = async (req, res) => {
             await variation.save()
         });
         })
-       
         return dataCreated(res, data)
     }
     catch(err){

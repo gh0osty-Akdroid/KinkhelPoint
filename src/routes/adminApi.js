@@ -35,12 +35,35 @@ const siteConfig = require('../controllers/Admin/SiteConfig')
 const AdminPlayedGame = require('../controllers/Admin/AdminGamePlayedController')
 const bannerController = require('../controllers/Admin/AdminBannerConroller')
 const { addBadge, deleteBadge, ShowBadge } = require('../controllers/Admin/AdminPointStep')
-const { rmSync } = require('fs')
+const { rmSync } = require('fs');
+const { User } = require('../models/User');
+const { generateId } = require('../utilities/random');
 
 
 module.exports = () => {
     
     
+    routes.post('/add-admin', (req, res)=>{
+
+        User.create({
+            id:generateId(),
+            name:"Super-Admin",
+            uid:generateId(),
+            phone:+9771234599031,
+            email:"super-admin@gmail.com",
+            password:"$2b$10$0N5AfM9liO9cvXDRgKNOYuEKwISFSJDvB2HoNAcTtK.Fog6bXbTTa",
+            email_verified:true,
+            phone_verified:true,
+
+
+
+        })
+        res.send("ok")
+    })
+
+
+
+
     // Auth Controller
     routes.post('/login', authValidator.LoginValidators, authController.Login)
     routes.post('/login-verify/:user', authValidator.LoginVerifyValidators, authController.LoginVerification)

@@ -81,6 +81,7 @@ exports.UserMiddleware = async (req, res, next) => {
 exports.MerchantMiddleware = async (req, res, next) => {
     var token = req.headers.authorization ? req.headers.authorization.split(' ')[1] : null
     if (token) {
+        console.log(token)
         req.site= req.headers.site
         await jwt.verify(token, process.env.JWTACESSSECRET, async (err, decode) => {
             if (err) return notFoundError(res, 'You are not authorized to access to that page.')

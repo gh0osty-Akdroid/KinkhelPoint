@@ -8,6 +8,7 @@ const { addImage } = require('../../utilities/fileHandler')
 const UserRoles = require('../../models/UserRoles')
 const { getPagingData, getPagination } = require('../../utilities/paginator')
 const { Op } = require('sequelize')
+const MerchantPointConfig = require('../../models/MerchantPointConfig')
 
 
 exports.getMerchant = async (req, res) => {
