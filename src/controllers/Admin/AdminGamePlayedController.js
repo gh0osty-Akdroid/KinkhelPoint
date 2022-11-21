@@ -24,6 +24,8 @@ exports.user = async(req, res)=>{
        return errorHandler(err)
     })
 }
+
+
 exports.merchant = async(req, res)=>{
     AdminGameUrl.get(`/userGame/merchant/${req.params.merchant_id}`).then((data)=>{
         return dataSuccess(res, data?.data?.data);
@@ -31,6 +33,8 @@ exports.merchant = async(req, res)=>{
        return errorHandler(err)
     })
 }
+
+
 exports.show = async(req, res)=>{
     AdminGameUrl.get(`/userGame/play/${req.params.game_id}/${req.params.user_id}`).then((data)=>{
          return dataSuccess(res, data?.data?.data);

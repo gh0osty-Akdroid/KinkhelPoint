@@ -63,20 +63,20 @@ const checkLoginPoint = async (req, res, user) => {
     const day = new Date().getDay()
     const time = new Date().getDate()
     const point = await Points.findOne({ where: { user_id: user.phone, }, include: [{ model: PointsDetail, where: { other: "Login Point" }, order: [["createdAt", "DESC"]], limit: 1 }] })
-    const pointTime = new Date(point.PointsDetails[0].createdAt).getDate()
-    if (pointTime != time) {
-        const pointconfig = await PointConfig.findOne({ where: { site: SITE_ID } })
-        const points = pointconfig.login_points.split(',')
-        point.points += parseFloat(points[day])
-        point.save()
-        const data ={
-            point_id : point.id,
-            points:points[day],
-            remarks:`You have received ${points[day]} as login point Bonus.`,
-            other:`Login Point`,
-        }
-        addBonusPoint(data)
-    }
+    // const pointTime = new Date(point.PointsDetails[0].createdAt).getDate()
+    // if (pointTime != time) {
+    //     const pointconfig = await PointConfig.findOne({ where: { site: SITE_ID } })
+    //     const points = pointconfig.login_points.split(',')
+    //     point.points += parseFloat(points[day])
+    //     point.save()
+    //     const data ={
+    //         point_id : point.id,
+    //         points:points[day],
+    //         remarks:`You have received ${points[day]} as login point Bonus.`,
+    //         other:`Login Point`,
+    //     }
+    //     addBonusPoint(data)
+    // }
 
 }
 

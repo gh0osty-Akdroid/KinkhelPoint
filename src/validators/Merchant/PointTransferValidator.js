@@ -35,9 +35,8 @@ exports.PointTransferValidators = [
             return true
         }
         else return Promise.reject()
-    }).withMessage("Your input should not exceed than your point.").bail(),
-    check("point").notEmpty().withMessage("Points cannot be empty").custom(async (value, { req, res }) => {
-        if (parseFloat(value)>100) {
+    }).withMessage("Your input should not exceed than your point.").bail().custom(async (value, { req, res }) => {
+        if (parseFloat(value)<100) {
             return true
         }
         else return Promise.reject()

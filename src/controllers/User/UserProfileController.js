@@ -13,7 +13,7 @@ exports.getProfile = async (req, res) => {
 exports.updateProfile = async (req, res) => {
     const user = req.user
     const body = req.body
-    const image = await addImage(body.image)
+    const image = body.image ? await addImage(body?.image) : user.image
     if (user.image){
         await removeImage(user.image)
         await user.update({

@@ -59,7 +59,7 @@ exports.playGame = async (req, res) => {
     let point
     const user = req.user
     body  = {...body,user_id:user.id}
-    UserGameUrl.get(`/game/${body.game_id}`).then(async (data) => {
+    UserGameUrl.post(`/play`).then(async (data) => {
         point = data?.data?.data.charge
         const points = await Points.findOne({ where: { user_id: user.phone } })
         if (points.points > point) {

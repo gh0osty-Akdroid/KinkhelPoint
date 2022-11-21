@@ -11,12 +11,15 @@ const { UserMiddleware } = require('../middlewares/authmiddleware')
 const voucherController = require('../controllers/User/UserVoucherController')
 const { redeemValidator } = require('../validators/User/voucherValidator')
 const pointController = require('../controllers/User/UserPointsController')
+
 const gamesController = require('../controllers/User/UserGameController')
 const { getDashboard } = require('../controllers/User/UserDashboardController')
 
+const { PointTransferValidators, verifyTokenValidators } = require('../validators/Merchant/PointTransferValidator')
 
 const { SiteSettings } = require('../models/SiteConfig')
-const { dataSuccess, notFoundError } = require('../utilities/responses')
+const { dataSuccess, notFoundError, validationError } = require('../utilities/responses')
+const { User } = require('../models/User')
 
 module.exports = () => {
 
@@ -48,7 +51,11 @@ module.exports = () => {
 
     // Profile Routes
     routes.get('/profile',UserMiddleware, profileController.getProfile)
-    routes.put('/profile',UserMiddleware, profileController.updateProfile)
+    routes.put('/profile',UserMiddleware,async(req, res, next)=>{
+        await User.findOne({where:{email:req.body.email}}).then(data=>{
+            data ? validationError(res, "The Email already exists") : next()
+        })
+    } ,profileController.updateProfile)
 
 
 
@@ -75,7 +82,15 @@ module.exports = () => {
     routes.post('/play-game',UserMiddleware, gamesController.playGame )
     routes.get('/played-game',UserMiddleware ,gamesController.playedGames )
 
-
+    routes.get('/get-transfer-token', UserMiddleware, pointController.requestToken)
+    routes.post('/verify-transfer-token', UserMiddleware, verifyTokenValidators, pointController.verifyToken)
+    routes.post('/transfer-points',UserMiddleware, PointTransferValidators, async (req, res, next) => {
+        if (req.query.check === "true") {
+            const data = await User.findOne({ where: { phone: req.body.phone } })
+            dataSuccess(res, data)
+        }
+        else { next() }
+    },   pointController.pointTransfer)
 
 
 

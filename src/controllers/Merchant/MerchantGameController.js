@@ -29,6 +29,19 @@ exports.showGame = async (req, res) => {
 }
 
 
+
+
+exports.getPlayedGame = async(req, res) =>{
+    const id = req.merchant.id
+    MerchantGameURL.get(`/play/${id}`).then((data) => {
+        return dataSuccess(res, data?.data);
+    }).catch((err) => {
+        errorHandler(res, err)
+    })
+}
+
+
+
 exports.post = async (req, res) => {
     var body = req.body
     await User.findOne({ where: { phone: `+${req.body.phone}` } }).then(user => {
@@ -57,13 +70,3 @@ exports.post = async (req, res) => {
 
 }
 
-
-
-exports.getPlayedGame = async(req, res) =>{
-    const id = req.merchant.id
-    MerchantGameURL.get(`/play/${id}`).then((data) => {
-        return dataSuccess(res, data?.data);
-    }).catch((err) => {
-        errorHandler(res, err)
-    })
-}

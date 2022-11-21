@@ -64,6 +64,7 @@ module.exports = () => {
 
 
 
+
     // Auth Controller
     routes.post('/login', authValidator.LoginValidators, authController.Login)
     routes.post('/login-verify/:user', authValidator.LoginVerifyValidators, authController.LoginVerification)
@@ -168,10 +169,16 @@ module.exports = () => {
     // Admin Game Routes
     routes.get('/games', AdminMiddleware, GameController.show)
     routes.put('/winner-announcement', AdminMiddleware, GameController.Winner)
+    routes.get('/iterations/:id', AdminMiddleware, GameController.getIterations)
+    routes.post('/winners', AdminMiddleware, GameController.AddWinner)
+    routes.post('/iterations', AdminMiddleware, GameController.AddWinningNumber)
 
     routes.delete('/games', AdminMiddleware, GameController.delete)
     routes.get('/game/:id', AdminMiddleware, GameController.showGame)
     routes.post("/games", AdminMiddleware, GameController.post)
+
+
+
 
     // Admin Game Played List
     routes.get('/played/game/:id',  AdminPlayedGame.allUser)

@@ -18,18 +18,20 @@ const { User } = require('./src/models/User')
 const { dataSuccess } = require('./src/utilities/responses')
 
 
+app.use(cors())
+
+
 app.use(
     helmet({
-        crossOriginResourcePolicy: { policy: 'same-site' }
+        crossOriginEmbedderPolicy: false,
+        crossOriginResourcePolicy: { policy: 'cross-origin' }
     })
 )
 app.use(useragent.express());
-app.use(cors())
 app.use(express.urlencoded({ limit: '2mb', extended: true }));
 app.use(methodOverride('_method'))
 app.use(express.static(path.join(__dirname, './src/public/Storage/')))
 app.use(express.json({ limit: '2mb' }))
-
 
 
 app.use('/api/v1/user', userApi())

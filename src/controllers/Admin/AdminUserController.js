@@ -29,7 +29,10 @@ exports.showUsers = async (req, res) => {
     const { page, input } = req.query;
     const { limit, offset } = await getPagination(page, null);
     if(!input){
-        await User.findAndCountAll({ where: { site: req.site }, offset: offset, limit: limit, include: [{ model: UserRoles, where: { role: { [Op.like]: "Customer" } } }] }).then(async e => {
+        await User.findAndCountAll({ where: { site: req.site }, offset: offset, limit: limit,order: [
+            ['createdAt', 'DESC'],
+            
+        ],include: [{ model: UserRoles, where: { role: { [Op.like]: "Customer" } } }] , }).then(async e => {
         const data = await getPagingData(e, page, limit)
         dataSuccess(res, data)
     }).catch((err) => notFoundError(res, err))

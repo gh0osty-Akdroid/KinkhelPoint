@@ -27,6 +27,7 @@ const MerchantValidator = require('../validators/Merchant/MerchantInventory')
 const { Merchant } = require('../models/Merchant')
 const { VoucherCategory } = require('../models/VoucherCategory')
 const { dataSuccess } = require('../utilities/responses')
+const { User } = require('../models/User')
 
 
 module.exports = () => {
@@ -40,15 +41,15 @@ module.exports = () => {
     routes.put('/image', MerchantMiddleware, ImageValidators, authController.updateImage)
 
 
-routes.get('/verify', MerchantMiddleware, async(req,res)=>{
-    res.status(200).send("Verified")
-})
+    routes.get('/verify', MerchantMiddleware, async (req, res) => {
+        res.status(200).send("Verified")
+    })
 
 
-    routes.get('/dashboard',MerchantMiddleware, async(req, res)=>{
-        const merchant = await Merchant.findAll({where:{merchant_id:req.merchant.id}})
-        const voucher = await VoucherCategory.findAndCountAll({where:{merchant_id:req.merchant.id}})
-        dataSuccess(res, {merchant:merchant, voucher:voucher})
+    routes.get('/dashboard', MerchantMiddleware, async (req, res) => {
+        const merchant = await Merchant.findAll({ where: { merchant_id: req.merchant.id } })
+        const voucher = await VoucherCategory.findAndCountAll({ where: { merchant_id: req.merchant.id } })
+        dataSuccess(res, { merchant: merchant, voucher: voucher })
     })
 
     // password routes
@@ -90,16 +91,22 @@ routes.get('/verify', MerchantMiddleware, async(req,res)=>{
 
     // Game-Controller
     routes.get('/games', MerchantMiddleware, GameController.show)
-    routes.get('/game/:id',MerchantMiddleware, GameController.showGame)
-    routes.post('/game',MerchantMiddleware, GameController.post)
-    routes.get('/played-game',MerchantMiddleware, GameController.getPlayedGame)
+    routes.get('/game/:id', MerchantMiddleware, GameController.showGame)
+    routes.post('/game', MerchantMiddleware, GameController.post)
+    routes.get('/played-game', MerchantMiddleware, GameController.getPlayedGame)
 
     // routes.get('/games',MerchantMiddleware, GameController.show)
 
     // Point tranfer Routes 
     routes.get('/get-transfer-token', MerchantMiddleware, pointController.requestToken)
     routes.post('/verify-transfer-token', MerchantMiddleware, verifyTokenValidators, pointController.verifyToken)
-    routes.post('/transfer-points', MerchantMiddleware, PointTransferValidators, pointController.pointTransfer)
+    routes.post('/transfer-points',MerchantMiddleware, PointTransferValidators, async (req, res, next) => {
+        if (req.query.check === "true") {
+            const data = await User.findOne({ where: { phone: req.body.phone } })
+            dataSuccess(res, data)
+        }
+        else { next() }
+    },   pointController.pointTransfer)
 
     // Api Controller
     routes.post('/main-api-controller', ApiValidators, ApiController)
