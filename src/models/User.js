@@ -119,7 +119,7 @@ const createUser = async (res, body) => {
 User.afterCreate(async (user, res) => {
    
     await createPoint(user)
-    await registerPoint(null, res, user)
+    // await registerPoint(null, res, user)
     // await Verification.createEmailtoken(user, res)
 })
 

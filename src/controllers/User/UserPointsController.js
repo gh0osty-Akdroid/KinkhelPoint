@@ -52,7 +52,6 @@ exports.requestToken = async (req, res) => {
             })
         }
         else {
-            console.log("sdcjnasd")
             await createToken(req, res, user)
         }
     } catch (error) {

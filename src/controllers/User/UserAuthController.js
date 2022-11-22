@@ -26,7 +26,6 @@ const generateAcessToken = async (user) => {
 exports.Register = async (req, res) => {
     const body = req.body
     const result = await createUser(res, body)
-
 }
 
 
