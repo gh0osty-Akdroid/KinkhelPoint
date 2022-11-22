@@ -85,8 +85,7 @@ exports.createMerchants = async (req, res) => {
                 site: req.site
             }).save().then(async ()=>{
                 await MerchantPointConfig.create({ merchant_id: merchant.id, id: generateId()})
-                const userRoles = await UserRoles.findOne({where:{user_id:user.id}})
-                await userRoles.update({role:body.role})
+                const userRoles = await UserRoles.create({user_id:user.id, role:body.role, id:generateId()})
                 return dataAccepted(res)
             }).catch((err)=>{
                 return serverError(res, err)
@@ -108,7 +107,6 @@ exports.updateMercahnt = async (req, res) => {
             dataSuccess(res,"Secret key Generated.")
         }
         else if (body.verified!== null) {
-            console.log(body.verified)
             merchant.update({ verified: body.verified })
             dataSuccess(res,"Verification Updated.")
         } 

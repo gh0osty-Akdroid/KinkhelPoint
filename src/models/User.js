@@ -103,10 +103,12 @@ const createUser = async (res, body) => {
         await transaction.afterCommit(async () => {
             user.id = generateId()
             user.uid = generateUId()
-            await UserRoles.create({user_id:user.id,role:"Customer", id:generateId()})
+            const user_ = await user
             await user.save()
         })
         await transaction.commit()
+        await UserRoles.create({user_id:user.id,role:"Customer", id:generateId()})
+
         return responses.blankSuccess(res)
     }
     catch (err) {
