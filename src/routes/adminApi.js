@@ -133,7 +133,7 @@ module.exports = () => {
     // voucher List Routes
     routes.get('/voucher-lists/:id/:merchant_id', AdminMiddleware, voucherList.list)
     routes.get('/voucher-lists-admin/:id', AdminMiddleware, voucherList.Adminlist)
-    routes.get('/download-voucher-lists-admin/:id', AdminMiddleware, voucherList.download)
+    routes.get('/download-voucher-lists-admin/:id', voucherList.download)
     routes.put('/voucher-lists-admin', AdminMiddleware, voucherList.UpdateVoucherList)
 
 

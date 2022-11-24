@@ -47,8 +47,8 @@ module.exports = () => {
 
 
     routes.get('/dashboard', MerchantMiddleware, async (req, res) => {
-        const merchant = await Merchant.findAll({ where: { merchant_id: req.merchant.id } })
-        const voucher = await VoucherCategory.findAndCountAll({ where: { merchant_id: req.merchant.id } })
+        const merchant = await Merchant.findAndCountAll({ where: { merchant_id: req.merchant.id }, limit:25, sort:[['createdAt',"DESC"]] })
+        const voucher = await VoucherCategory.findAndCountAll({ where: { merchant_id: req.merchant.id }, limit:25, sort:[["createdAt","DESC"]] })
         dataSuccess(res, { merchant: merchant, voucher: voucher })
     })
 

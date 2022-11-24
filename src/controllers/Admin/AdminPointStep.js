@@ -26,6 +26,8 @@ exports.ShowBadge = async (req, res) => {
     }).catch((err) => console.log(err))
 
 }
+
+
 exports.deleteBadge = async (req, res) => {
     const id = req.params.id
     const check = await PointBadge.findByPk(id)

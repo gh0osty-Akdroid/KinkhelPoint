@@ -80,7 +80,7 @@ exports.profile = async (req, res) => {
 }
 
 
-exports.updateMerchant =async (req, res)=>{
+exports.updateUser =async (req, res)=>{
     const user = req.user
     await user.update(req.body).then(()=>{
         responses.dataAccepted(res)
@@ -89,7 +89,7 @@ exports.updateMerchant =async (req, res)=>{
     })
 }
 
-exports.updateUser = async(req,res)=>{
+exports.updateMerchant = async(req,res)=>{
     const merchant = req.merchant
     await merchant.update(req.body).then(()=>{
         responses.dataAccepted(res)
