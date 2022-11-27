@@ -128,7 +128,7 @@ exports.download = async (req, res) => {
         const data = await VoucherList.findAndCountAll({ where: { category_id: req.params.id, batch: batch, merchant_id:merchant_id } })
         const response = await fileGenerator(res, data["rows"], batch, req.params.id)
     } catch (error) {
-        serverError(res, err)
+        serverError(res, error)
     }
 }
 exports.search = async (req, res) => {

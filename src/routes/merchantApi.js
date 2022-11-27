@@ -75,6 +75,7 @@ module.exports = () => {
     routes.get('/voucher-lists/:id', MerchantMiddleware, voucherList.list)
     routes.post('/voucher-lists/:id', MerchantMiddleware, merchantCategoryValidators.voucherList, voucherList.store)
     routes.put('/voucher-list', MerchantMiddleware, voucherList.update)
+    routes.get('/download-voucher-lists-admin/:id', voucherList.download)
 
     // Sub-Merchant Controller
     routes.get('/submerchants', MerchantMiddleware, subMerchantController.subMerchant)

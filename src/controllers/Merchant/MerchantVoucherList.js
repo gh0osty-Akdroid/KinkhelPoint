@@ -4,7 +4,7 @@ const { VoucherList } = require("../../models/VoucherList")
 const { getPagination, getPagingData } = require("../../utilities/paginator")
 const { generateId, generateUId } = require("../../utilities/random")
 const { dataAccepted, serverError, dataSuccess, notFoundError, dataCreated } = require("../../utilities/responses")
-
+const { fileGenerator } = require("../../utilities/fileHandler")
 
 
 
@@ -97,3 +97,14 @@ exports.update = async (req, res) => {
 
 }
 
+
+exports.download = async (req, res) => {
+    const { batch, merchant } = req.query;
+    var merchant_id = merchant === "null" ? null : merchant
+    try {
+        const data = await VoucherList.findAndCountAll({ where: { category_id: req.params.id, batch: batch, merchant_id:merchant_id } })
+        const response = await fileGenerator(res, data["rows"], batch, req.params.id)
+    } catch (error) {
+        serverError(res, error)
+    }
+}
