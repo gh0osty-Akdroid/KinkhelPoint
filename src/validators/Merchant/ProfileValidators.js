@@ -44,14 +44,13 @@ exports.merchantValidator = [
     check("pan_number").notEmpty().withMessage("Pan Number / Store Identification Number should not be empty.").bail().
         custom(async (value, {req}) => {
             const check = await Merchant.findOne({where:{ pan_number: value }})
-
-            if (check.pan_number === req.merchant.pan_number) return true
-            else{
+            if (check?.pan_number === req.merchant.pan_number) {
+                return true 
+            }
+            else{ 
                 if (check) return Promise.reject()
                 else return true
             }
-        
-
         }).withMessage("The Identification/ Pan Number already exists."),
     async (req, res, next) => {
         const err = validationResult(req)

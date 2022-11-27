@@ -5,12 +5,16 @@ const { addImage } = require("../../utilities/fileHandler")
 
 
 exports.show = async (req, res) => {
-    await SiteSettings.findAll().then((data) => dataSuccess(res, data)).catch((err) => serverError(res))
+    await SiteSettings.findAll().then((data) => dataSuccess(res, data)).catch((err) => serverError(res, err))
 }
 
 
 exports.getSite = async (req, res) => {
-    await SiteSettings.findOne({ where: { id: req.params.id } }).then((data) => dataSuccess(res, data)).catch((err) => serverError(res))
+    try {
+    await SiteSettings.findOne({ where: { id: req.params.id } }).then((data) => dataSuccess(res, data)).catch((err) => serverError(res, err))
+    } catch (error) {
+        serverError(res, error)
+    }
 }
 
 
@@ -20,7 +24,8 @@ exports.store = async (req, res) => {
     const body = {id:generateId(),...data}
     const siteConfig = await SiteSettings.build(body)
     siteConfig.logo= image
-    await siteConfig.save().then(() => blankSuccess(res)).catch(async (err) => {console.log(err)
+    await siteConfig.save().then(() => blankSuccess(res)).catch(async (err) => {
+        console.log(err)
         serverError(res, err)})
 }
 
