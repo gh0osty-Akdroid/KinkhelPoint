@@ -44,7 +44,6 @@ exports.updateCategory = async(req, res)=>{
 }
 
 exports.deleteCategory = async(req, res)=>{
-
     AdminGameUrl.delete(`/categories`, {data:req.body}).then((data)=>{
         return dataSuccess(res, data?.data?.data)
     }).catch((err)=>{

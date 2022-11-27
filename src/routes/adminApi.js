@@ -102,7 +102,7 @@ module.exports = () => {
     // Site Setting Routes
     routes.post('/site-config', AdminMiddleware, SiteConfigValidator.store, siteConfig.store)
     routes.get('/site-config', AdminMiddleware, siteConfig.show)
-    routes.get('/site-config/:site_id', AdminMiddleware, siteConfig.getSite)
+    routes.get('/site-config/:id', AdminMiddleware, siteConfig.getSite)
 
     routes.delete('/site-config', AdminMiddleware, SiteConfigValidator.destroy, siteConfig.destory)
     routes.put('/site-config', AdminMiddleware, siteConfig.update)

@@ -8,7 +8,7 @@ const AdminGameUrl = axios.create({
 
 
 exports.show = async (req, res) => {
-    AdminGameUrl.get(`/games`).then((data) => {
+    AdminGameUrl.get(`/games?search=${req.query.input}&site=${req.site}`).then((data) => {
         return dataSuccess(res, data?.data?.data);
     }).catch((err) => {
         return errorHandler(res, err)
