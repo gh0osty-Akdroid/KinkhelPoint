@@ -2,7 +2,7 @@ const { STRING, BOOLEAN, INTEGER, DOUBLE, TEXT, BIGINT } = require('sequelize')
 const Sequelize = require('sequelize')
 const db = require('../config/db')
 const ejs = require('ejs')
-const { sendEmail } = require('../utilities/mailer')
+const { sendMail } = require('../utilities/mailer')
 const sendOTP = require('../utilities/otpHandler')
 const { generateToken, generateCode, generateId } = require('../utilities/random')
 const { validationError, blankSuccess, serverError, dataSuccess } = require('../utilities/responses')
@@ -60,7 +60,7 @@ const createPhoneToken = async (res, user) => {
 
 
 
-const createEmailtoken = async (user, res) => {
+const createEmailtoken = async (user,type, res) => {
     try {
         const transaction = await db.transaction()
         const vCode = generateCode()
@@ -73,8 +73,23 @@ const createEmailtoken = async (user, res) => {
         await transaction.afterCommit(async () => {
             token.id = generateId()
             await token.save()
-            const data = await ejs.renderFile(__dirname + "/../../src/public/views/welcomeMail.ejs", { user: user, site: process.env.APP_URL, token: vCode })
-            await sendEmail(user.email, "Welcome!", data)
+            if (data === "welcome") {
+                const data = await ejs.renderFile(__dirname + "/../../src/public/views/welcomeMail.ejs", { user: user, token: vCode })
+                await sendMail(user, "Welcome!", data)
+            }
+            if (data === "forget") {
+                const data = await ejs.renderFile(__dirname + "/../../src/public/views/forgetPassword.ejs", { user: user, token: vCode })
+                await sendMail(user, "Welcome!", data)
+            }
+            // if (data === "welcome") {
+            //     const data = await ejs.renderFile(__dirname + "/../../src/public/views/welcomeMail.ejs", { user: user, site: process.env.APP_URL, token: vCode })
+            //     await sendMail(user, "Welcome!", data)
+            // }
+            // if (data === "welcome") {
+            //     const data = await ejs.renderFile(__dirname + "/../../src/public/views/welcomeMail.ejs", { user: user, site: process.env.APP_URL, token: vCode })
+            //     await sendMail(user, "Welcome!", data)
+            // }
+            
 
         })
         await transaction.commit()

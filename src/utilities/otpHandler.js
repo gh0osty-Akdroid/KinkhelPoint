@@ -1,20 +1,41 @@
-const { dataSuccess } = require('./responses');
+const { dataSuccess, serverError } = require('./responses');
+var aws = require('aws-sdk')
 
-const accountSid = process.env.TWILIO_ACCOUNT_SID;
-const authToken = process.env.TWILIO_AUTH_TOKEN;
-const client = require('twilio')(accountSid, authToken);
+const { SNSClient, SetSMSAttributesCommand } = require("@aws-sdk/client-sns");
 
 
-const sendOTP =async (res, phone, message) => {
-dataSuccess(res,message )
-    // await client.messages
-    //   .create({
-    //      body: message,
-    //      from: process.env.TWILIO_PHONE_NUMBER,
-    //      to: `+977${phone}`
-    //    })
-    //   .then(message => console.log(res, message.sid)).catch(err=>console.log(err))
-  }
+aws.config.update({
+  accessKeyId: process.env.AWS_ACCESS_KEY, secretAccessKey: process.env.AWS_SECRET_KEY, region: process.env.AWS_ACCESS_REGION
+})
 
-  module.exports = sendOTP
+
+const sns= new aws.SNS({ apiVersion: '2010-03-31' })
+
+
+
+const sendOTP = async (res, phone, message) => {
+  console.log(message)
+  var params = {
+    Message: message,
+    PhoneNumber: phone,
+    MessageAttributes: {
+      'AWS.SNS.SMS.SenderID': {
+        'DataType': 'String',
+        'StringValue': "Test"
+      }
+    }
+  };
+  dataSuccess(res, "You will receive a verificaion code soon.")
+  // var publishTextPromise = sns.publish(params).promise();
+
+  // publishTextPromise.then(
+  //   function (data) {
+  //     dataSuccess(res, "You will receive a verificaion code soon.")
+  //   }).catch(
+  //     function (err) {
+  //       serverError(res, err)
+  //     });
+}
+
+module.exports = sendOTP
 

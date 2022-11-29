@@ -105,7 +105,7 @@ module.exports = () => {
     routes.get('/site-config/:id', AdminMiddleware, siteConfig.getSite)
 
     routes.delete('/site-config', AdminMiddleware, SiteConfigValidator.destroy, siteConfig.destory)
-    routes.put('/site-config', AdminMiddleware, siteConfig.update)
+    routes.put('/site-config/:id', AdminMiddleware, siteConfig.update)
 
 
     // Notification Routes
@@ -159,11 +159,11 @@ module.exports = () => {
     routes.post('/badge', AdminMiddleware, addBadge)
 
     // Admin Game Catgory Routes
-    routes.get('/game-categories', GameCategoryController.show)
-    routes.post('/game-categories', GameCategoryController.add)
-    routes.get('/game-category/:id', GameCategoryController.getCategory)
-    routes.put('/game-category/:id', GameCategoryController.updateCategory)
-    routes.delete('/game-category', GameCategoryController.deleteCategory)
+    routes.get('/game-categories',AdminMiddleware, GameCategoryController.show)
+    routes.post('/game-categories',AdminMiddleware, GameCategoryController.add)
+    routes.get('/game-category/:id',AdminMiddleware, GameCategoryController.getCategory)
+    routes.put('/game-category/:id',AdminMiddleware, GameCategoryController.updateCategory)
+    routes.delete('/game-category',AdminMiddleware, GameCategoryController.deleteCategory)
 
 
     // Admin Game Routes

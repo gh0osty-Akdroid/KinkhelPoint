@@ -8,9 +8,10 @@ const AdminGameUrl = axios.create({
 
 
 exports.show = async (req, res) => {
-    AdminGameUrl.get(`/games?search=${req.query.input}&site=${req.site}`).then((data) => {
+    AdminGameUrl.get(`/games?search=${!req.query.input ? "" : req.query.input}&site=${req.site}`).then((data) => {
         return dataSuccess(res, data?.data?.data);
     }).catch((err) => {
+        console.log(err)
         return errorHandler(res, err)
     })
 }
@@ -40,7 +41,7 @@ exports.delete = async (req, res) => {
 
 exports.post = async (req, res) => {
     const body = req.body
-    AdminGameUrl.post(`/games`, body).then((data) => {
+    AdminGameUrl.post(`/games`, {region : req.site, ...body}).then((data) => {
         blankSuccess(res)
     }).catch((err) => {
         console.log(err?.response?.data)
@@ -63,6 +64,27 @@ exports.getEnableGames = async (req, res) => {
 
 exports.postEnableGames = async (req, res) => {
     const body = req.body
+    console.log(body)
+    AdminGameUrl.post(`/games/enabled`, body).then((data) => {
+        return dataSuccess(res, data?.data?.data);
+    }).catch((err) => {
+        return errorHandler(res, err)
+    })
+}
+
+exports.postAlternateGame = async (req, res) => {
+    const body = req.body
+    console.log(body)
+    AdminGameUrl.post(`/games/enabled`, body).then((data) => {
+        return dataSuccess(res, data?.data?.data);
+    }).catch((err) => {
+        return errorHandler(res, err)
+    })
+}
+
+exports.postEnableGames = async (req, res) => {
+    const body = req.body
+    console.log(body)
     AdminGameUrl.post(`/games/enabled`, body).then((data) => {
         return dataSuccess(res, data?.data?.data);
     }).catch((err) => {
@@ -89,10 +111,10 @@ exports.Winner = async (req, res) => {
 }
 
 
-exports.AddWinner = async(req, res) =>{
-    AdminGameUrl.post('winners', req.body).then(data=>{
+exports.AddWinner = async (req, res) => {
+    AdminGameUrl.post('winners', req.body).then(data => {
         return dataSuccess(res, data?.data?.data)
-    }).catch(err =>{
+    }).catch(err => {
         console.log(err?.response?.data?.error)
         return errorHandler(err)
     })
@@ -108,19 +130,19 @@ exports.CheckWinnigNumber = async (req, res) => {
 }
 
 
-exports.getIterations = async(req, res)=>{
-    AdminGameUrl.get(`/iterations/${req.params.id}`).then(data=>{
+exports.getIterations = async (req, res) => {
+    AdminGameUrl.get(`/iterations/${req.params.id}`).then(data => {
         return dataSuccess(res, data?.data?.data)
-    }).catch(err=>{
-    return errorHandler(err)
+    }).catch(err => {
+        return errorHandler(err)
     })
 }
 
-exports.AddWinningNumber = async(req, res)=>{
-    AdminGameUrl.post(`/iterations`, req.body).then(data=>{
+exports.AddWinningNumber = async (req, res) => {
+    AdminGameUrl.post(`/iterations`, req.body).then(data => {
         return dataSuccess(res, data?.data?.data)
-    }).catch(err=>{
-    return errorHandler(err)
+    }).catch(err => {
+        return errorHandler(err)
     })
 }
 

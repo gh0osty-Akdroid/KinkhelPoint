@@ -33,7 +33,7 @@ exports.showGame = async (req, res) => {
 
 exports.getPlayedGame = async(req, res) =>{
     const id = req.merchant.id
-    MerchantGameURL.get(`/play/${id}`).then((data) => {
+    MerchantGameURL.get(`/play?merchant=${id}`).then((data) => {
         return dataSuccess(res, data?.data);
     }).catch((err) => {
         errorHandler(res, err)
@@ -60,8 +60,7 @@ exports.post = async (req, res) => {
             MerchantGameURL.post(`/play`, body).then((data) => {
                 blankSuccess(res)
             }).catch((err) => {
-                console.log(err)
-                console.log(err?.response?.data?.error?.errors[0].msg)
+                
                 errorHandler(res, err)
             })
         }

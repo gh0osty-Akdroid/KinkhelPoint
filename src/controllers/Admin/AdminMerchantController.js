@@ -73,7 +73,7 @@ exports.createMerchants = async (req, res) => {
             "site":req.site
         })
         await user.save().then(async ()=>{
-            const merchant = await Merchant.build({
+           const merchant=  await Merchant.build({
                 id : generateId(),
                 user_id: user.id,
                 parent_company: body.parent_company,
@@ -83,10 +83,17 @@ exports.createMerchants = async (req, res) => {
                 pan_number: body.pan_number,
                 region: body.region,
                 site: req.site
-            }).save().then(async ()=>{
-                await MerchantPointConfig.create({ merchant_id: merchant.id, id: generateId()})
-                const userRoles = await UserRoles.create({user_id:user.id, role:body.role, id:generateId()})
-                return dataAccepted(res)
+            })
+            await merchant.save().then(async ()=>{
+                try{
+                    await MerchantPointConfig.create({ merchant_id: merchant.id, id: generateId()})
+                    const userRoles = await UserRoles.create({user_id:user.id, role:body.role, id:generateId()})
+                    return dataAccepted(res)
+                }
+                catch(err){
+                    console.log(err)
+                }
+            
             }).catch((err)=>{
                 return serverError(res, err)
         }).catch((err)=>{

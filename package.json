@@ -10,6 +10,8 @@
   "author": "Akdroid Nepal",
   "license": "ISC",
   "dependencies": {
+    "@aws-sdk/client-sns": "^3.218.0",
+    "aws-sdk": "^2.1262.0",
     "axios": "^0.27.2",
     "bcrypt": "^5.0.1",
     "cors": "^2.8.5",

@@ -36,11 +36,11 @@ exports.verifyToken = async (req, res) => {
     const body = req.body
     const { customer } = req.query
     if (customer) {
-        const user_ = await User.findOne({ where: { phone: `${customer}` }})
+        const user_ = await User.findOne({ where: { phone: `${customer}` }, include: [{ model: Points }] })
         await Token.findOne({ where: { user_id: user_.id, token: body.token } }).then(async (data) => {
             data !== null ? dataSuccess(res, user_) : validationError(res, "The token has been expired. Try again later.")
         }).catch((err) => {
-            console.log(err); serverError(res, err)
+            serverError(res, err)
         })
     } else {
         await Token.findOne({ where: { user_id: user.id, token: body.token } }).then(async (data) => {

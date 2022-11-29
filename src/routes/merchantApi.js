@@ -28,6 +28,7 @@ const { Merchant } = require('../models/Merchant')
 const { VoucherCategory } = require('../models/VoucherCategory')
 const { dataSuccess } = require('../utilities/responses')
 const { User } = require('../models/User')
+const { Points } = require('../models/Points')
 
 
 module.exports = () => {
@@ -94,7 +95,8 @@ module.exports = () => {
     routes.get('/games', MerchantMiddleware, GameController.show)
     routes.get('/game/:id', MerchantMiddleware, GameController.showGame)
     routes.post('/game', MerchantMiddleware, GameController.post)
-    routes.get('/played-game', MerchantMiddleware, GameController.getPlayedGame)
+    routes.get('/played-game',async(req, res, next)=>{
+    next()}, MerchantMiddleware, GameController.getPlayedGame)
 
     // routes.get('/games',MerchantMiddleware, GameController.show)
 
@@ -103,7 +105,7 @@ module.exports = () => {
     routes.post('/verify-transfer-token', MerchantMiddleware, verifyTokenValidators, pointController.verifyToken)
     routes.post('/transfer-points',MerchantMiddleware, PointTransferValidators, async (req, res, next) => {
         if (req.query.check === "true") {
-            const data = await User.findOne({ where: { phone: req.body.phone } })
+            const data = await User.findOne({ where: { phone: req.body.phone }, include:[{model:Points}] })
             dataSuccess(res, data)
         }
         else { next() }

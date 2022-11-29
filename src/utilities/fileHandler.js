@@ -19,7 +19,7 @@ exports.addImage = async (image) => {
 }
 
 exports.removeImage = async (url) => {
-    var url = `${__dirname}/../public/Storage/${url}`
+    var url = `${__dirname}../public/Storage/${url}`
     await fs.unlink(url, (err) => {
         if (err) {
             console.log(err)
