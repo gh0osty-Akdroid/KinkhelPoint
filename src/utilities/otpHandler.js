@@ -24,6 +24,7 @@ const sendOTP = async (res, phone, message) => {
       }
     }
   };
+  console.log(message)
   var publishTextPromise = sns.publish(params).promise();
 
   publishTextPromise.then(

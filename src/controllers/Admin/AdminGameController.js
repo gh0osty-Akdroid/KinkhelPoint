@@ -61,26 +61,20 @@ exports.getEnableGames = async (req, res) => {
     })
 }
 
-
-exports.postEnableGames = async (req, res) => {
-    const body = req.body
-    console.log(body)
-    AdminGameUrl.post(`/games/enabled`, body).then((data) => {
-        return dataSuccess(res, data?.data?.data);
-    }).catch((err) => {
-        return errorHandler(res, err)
-    })
-}
-
 exports.postAlternateGame = async (req, res) => {
     const body = req.body
     console.log(body)
-    AdminGameUrl.post(`/games/enabled`, body).then((data) => {
+    AdminGameUrl.post(`/games/alternate`, body).then((data) => {
+        console.log(data)
         return dataSuccess(res, data?.data?.data);
     }).catch((err) => {
+        console.log(err)
         return errorHandler(res, err)
     })
 }
+
+
+
 
 exports.postEnableGames = async (req, res) => {
     const body = req.body
