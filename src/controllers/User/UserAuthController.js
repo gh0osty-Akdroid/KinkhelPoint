@@ -55,7 +55,7 @@ const checkSession = async (req, res, user, token) => {
     else data = "Web"
     const session = await Session.Session.findOne({ where: { user_id: user.id, device_information: data } })
     if (session) return session.destroy().then(async () => await Session.createSession(req, res, user, device, token, "info"))
-    else await Session.createSession(req,res, user, device, token, "info")
+    else await Session.createSession(req, res, user, device, token, "info")
 }
 
 const checkLoginPoint = async (req, res, user) => {
@@ -82,14 +82,19 @@ const checkLoginPoint = async (req, res, user) => {
 
 
 exports.LoginVerification = async (req, res) => {
-    const user = req.user
-    const device = req.useragent
-    const accessToken = await generateAcessToken(user)
-    const response = await checkSession(req, res, user, accessToken)
-    const point = await Points.findOne({ where: { user_id: user.phone } })
-    checkLoginPoint(req, res, user)
-    if (response) return responses.dataSuccess(res, { user: user, token: accessToken, points:point })
-    else return responses.serverError(res, "Something went wrong.")
+    try {
+        const user = req.user
+        const device = req.useragent
+        const accessToken = await generateAcessToken(user)
+        const response = await checkSession(req, res, user, accessToken)
+        const point = await Points.findOne({ where: { user_id: user.phone } })
+        checkLoginPoint(req, res, user)
+        return responses.dataSuccess(res, { user: user, token: accessToken, points: point })
+    } catch (err) {
+
+        return responses.serverError(res, "Something went wrong.")
+    }
+
 }
 
 

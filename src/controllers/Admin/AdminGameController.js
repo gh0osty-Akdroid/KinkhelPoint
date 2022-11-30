@@ -61,14 +61,25 @@ exports.getEnableGames = async (req, res) => {
     })
 }
 
+
+
+
 exports.postAlternateGame = async (req, res) => {
     const body = req.body
-    console.log(body)
     AdminGameUrl.post(`/games/alternate`, body).then((data) => {
-        console.log(data)
         return dataSuccess(res, data?.data?.data);
     }).catch((err) => {
-        console.log(err)
+        return errorHandler(res, err)
+    })
+}
+
+
+
+exports.getAlternateGame = async (req, res) => {
+    const body = req.body
+    AdminGameUrl.get(`/games/alternate`, body).then((data) => {
+        return dataSuccess(res, data?.data?.data);
+    }).catch((err) => {
         return errorHandler(res, err)
     })
 }
@@ -103,6 +114,10 @@ exports.Winner = async (req, res) => {
         return errorHandler(res, err)
     })
 }
+
+
+
+
 
 
 exports.AddWinner = async (req, res) => {

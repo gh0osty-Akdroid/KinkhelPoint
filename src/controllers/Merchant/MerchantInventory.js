@@ -2,7 +2,7 @@ const { Products, ProductImage } = require('../../models/Inventory')
 const { ProductVariation } = require('../../models/InventoryVariations')
 const { addImage } = require("../../utilities/fileHandler")
 const { generateId } = require("../../utilities/random")
-const { dataCreated, serverError, dataSuccess, notFoundError } = require("../../utilities/responses")
+const { dataCreated, serverError, dataSuccess, notFoundError, blankSuccess } = require("../../utilities/responses")
 
 exports.AddInventory = async (req, res) => {
     const body = req.body
@@ -53,6 +53,17 @@ exports.getAllInventory = async (req, res) => {
 exports.getSingleInventory= async(req, res)=>{
     await Products.findOne({ where : { id : req.params.id }, include: [{ model: ProductImage }, { model: ProductVariation }] }).then((data)=>{
         return dataSuccess(res, data)
+    }).catch(err=>{
+        serverError(res, err)
+    })
+}
+
+
+
+exports.deleteInventory= async(req, res)=>{
+    await Products.findOne({ where : { id : req.params.id }, include: [{ model: ProductImage }, { model: ProductVariation }] }).then((data)=>{
+        data.destroy()
+        return blankSuccess(res)
     }).catch(err=>{
         serverError(res, err)
     })

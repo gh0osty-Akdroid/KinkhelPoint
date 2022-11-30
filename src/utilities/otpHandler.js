@@ -29,7 +29,7 @@ const sendOTP = async (res, phone, message) => {
 
   publishTextPromise.then(
     function (data) {
-      dataSuccess(res, "You will receive a verificaion code soon.")
+      dataSuccess(res, message)
     }).catch(
       function (err) {
         serverError(res, err)

@@ -12,7 +12,7 @@ const subMerchantController = require('../controllers/Merchant/SubMerchantContro
 const PointConfigController = require('../controllers/Merchant/MerchantPointConfiguration')
 const GameController = require('../controllers/Merchant/MerchantGameController')
 const { ApiController } = require('../controllers/Merchant/MerchantApi')
-const { getAllInventory, AddInventory, getSingleInventory } = require('../controllers/Merchant/MerchantInventory')
+const { getAllInventory, AddInventory, getSingleInventory, deleteInventory } = require('../controllers/Merchant/MerchantInventory')
 
 
 // Validators
@@ -88,6 +88,7 @@ module.exports = () => {
     //Inventory Controller
     routes.get('/get-all-inventory', MerchantMiddleware, getAllInventory)
     routes.get('/get-inventory/:id', MerchantMiddleware, getSingleInventory)
+    routes.delete('/deleteInventory/:id', MerchantMiddleware,deleteInventory )
     routes.post('/add-product', MerchantMiddleware, MerchantValidator.store, AddInventory)
 
 
@@ -95,10 +96,8 @@ module.exports = () => {
     routes.get('/games', MerchantMiddleware, GameController.show)
     routes.get('/game/:id', MerchantMiddleware, GameController.showGame)
     routes.post('/game', MerchantMiddleware, GameController.post)
-    routes.get('/played-game',async(req, res, next)=>{
-    next()}, MerchantMiddleware, GameController.getPlayedGame)
+    routes.get('/played-game', MerchantMiddleware, GameController.getPlayedGame)
 
-    // routes.get('/games',MerchantMiddleware, GameController.show)
 
     // Point tranfer Routes 
     routes.get('/get-transfer-token', MerchantMiddleware, pointController.requestToken)

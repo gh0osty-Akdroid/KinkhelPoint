@@ -176,6 +176,8 @@ module.exports = () => {
     routes.get('/game/:id', AdminMiddleware, GameController.showGame)
     routes.post("/games", AdminMiddleware, GameController.post)
     routes.post("/alternate-games", AdminMiddleware, GameController.postAlternateGame)
+    routes.get("/alternate-games", AdminMiddleware, GameController.getAlternateGame)
+    
 
 
 
@@ -185,6 +187,7 @@ module.exports = () => {
     routes.get('/played/game/:game_id/:user_id', AdminPlayedGame.show)
     routes.get('/played/user/:user_id', AdminPlayedGame.user)
     routes.get('/played/merchant/:merchant_id', AdminPlayedGame.merchant)
+    routes.post('/findWinners/:id', AdminPlayedGame.findwinners)
 
 
 

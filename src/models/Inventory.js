@@ -40,7 +40,8 @@ const ProductImage = db.define('ProductImage', {
         references: {
             model: 'products',
             key: 'id'
-        }
+        },
+        onDelete:"CASCADE"
     },
     image: {
         type: STRING,

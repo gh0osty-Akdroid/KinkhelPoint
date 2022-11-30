@@ -18,7 +18,8 @@ const ProductVariation = db.define('ProductVariation', {
         references: {
             model: 'products',
             key: 'id'
-        }
+        },
+        onDelete:"CASCADE"
     },
     size: {
         type: STRING,

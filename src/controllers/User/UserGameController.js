@@ -1,6 +1,7 @@
 const { default: axios } = require("axios");
 const { Points, addBonusPoint } = require("../../models/Points");
-const { dataSuccess, serverError, validationError, notFoundError } = require("../../utilities/responses");
+const { User } = require("../../models/User");
+const { dataSuccess, serverError, validationError, notFoundError, blankSuccess } = require("../../utilities/responses");
 
 
 
@@ -8,16 +9,33 @@ const UserGameUrl = axios.create({
     baseURL: process.env.USERGAMEURL
 })
 
+const AdminGameUrl = axios.create({
+    baseURL: process.env.GAMEURL
+})
 
-exports.errorHandler =(res, err) =>{
-    if (err?.response?.status===404){
+
+
+exports.errorHandler = (res, err) => {
+    if (err?.response?.status === 404) {
         return notFoundError(res, err)
     }
-    else if(err?.response?.status===400){
+    else if (err?.response?.status === 400) {
         return serverError(res, err)
     }
+    else if (err?.response?.status === 406) {
+        return validationError(res, err?.response?.data?.error)
+    }
+}
 
-    else if(err?.response?.status===406){
+
+const errorHandlers = (res, err) => {
+    if (err?.response?.status === 404) {
+        return notFoundError(res, err)
+    }
+    else if (err?.response?.status === 400) {
+        return serverError(res, err)
+    }
+    else if (err?.response?.status === 406) {
         return validationError(res, err?.response?.data?.error)
     }
 }
@@ -25,68 +43,68 @@ exports.errorHandler =(res, err) =>{
 
 
 
-exports.getGames = async (req, res) => {
-    UserGameUrl.get('/games').then((data) => {
-        dataSuccess(res, data?.data?.data)
+exports.show = async (req, res) => {
+    UserGameUrl.get(`/games`).then((data) => {
+        return dataSuccess(res, data?.data?.data);
     }).catch((err) => {
-        serverError(res, err?.response?.data)
+        return errorHandlers(res, err)
     })
 }
 
-exports.getGame = async (req, res) => {
+
+
+
+exports.showGame = async (req, res) => {
     const id = req.params.id
     UserGameUrl.get(`/game/${id}`).then((data) => {
-        dataSuccess(res, data?.data?.data)
+        return dataSuccess(res, data?.data);
+    }).catch((err) => {
+        errorHandlers(res, err)
     })
 }
 
-const reducePoint = async (points, point) => {
-    points.points -= parseFloat(point)
-    await points.save()
-    const value = {
-        point_id: points.id,
-        points: point,
-        remarks: `Your ${point} points has been reduced for playing game.`,
-        other: `Your ${point} points has been reduced for playing game.`
-    }
-    addBonusPoint(value)
-    return true
+
+
+
+exports.getPlayedGame = async (req, res) => {
+    const id = req.user.id
+    AdminGameUrl.get(`/userGame/user/${id}`).then((data) => {
+        return dataSuccess(res, data?.data?.data);
+    }).catch((err) => {
+        errorHandlers(res, err)
+    })
 }
 
 
-exports.playGame = async (req, res) => {
-    let body = req.body
-    let point
-    const user = req.user
-    body  = {...body,user_id:user.id}
-    UserGameUrl.post(`/play`).then(async (data) => {
-        point = data?.data?.data.charge
-        const points = await Points.findOne({ where: { user_id: user.phone } })
-        if (points.points > point) {
-            UserGameUrl.post(`/play`, body).then(async (data) => {
-                await reducePoint(points, point)
-                dataSuccess(res, data?.data?.data)
+
+exports.post = async (req, res) => {
+    var body = req.body
+    body = { ...body, user_id: req.user.id }
+    await Points.findOne({ where: { user_id: req.user.phone } }).then((point) => {
+        if (parseFloat(body.charge) > point.points) {
+            UserGameUrl.post(`/play`, body).then((data) => {
+                point.points = point.points - parseFloat(body.charge)
+                point.save()
+                blankSuccess(res)
             }).catch((err) => {
-                if (err?.response?.status === 406) {
-                    return errorHandler(res, err)
-                }
+                errorHandlers(res, err)
             })
         }
-        else return validationError(res, "You do not have sufficient point to play this game.")
-    }).catch((err)=>{
-        errorHandler(res, err)
-    })
-
-}
-
-exports.playedGames = async (req, res) => {
-    const user = req.user
-    UserGameUrl.get(`/play/${user.id}`).then((data) => {
-        dataSuccess(res, data?.data?.data)
-    }).catch((err) => {
-        if (err?.response?.status === 406) {
-            validationError(err?.response?.data?.error?.errors[0].msg);
+        else {
+            validationError(res, "You dont have sufficient point to play this game.")
         }
-        else return serverError(res, err)
+
     })
+
 }
+
+
+const DeducePoint = async (user, point) => {
+    try {
+
+    } catch (err) {
+
+    }
+}
+
+

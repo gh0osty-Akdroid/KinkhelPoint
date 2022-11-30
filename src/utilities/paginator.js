@@ -6,6 +6,7 @@ exports.getPagingData = async (items, page, limit) => {
     const totalPages = Math.ceil(totalItems / limit);
     return { data, totalPages, currentPage };
 };
+
 exports.getPagination = async (page, size) => {
     const limit = size ? +size : 25;
     var offset;

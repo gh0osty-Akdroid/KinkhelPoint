@@ -18,7 +18,7 @@ const { getDashboard } = require('../controllers/User/UserDashboardController')
 const { PointTransferValidators, verifyTokenValidators } = require('../validators/Merchant/PointTransferValidator')
 
 const { SiteSettings } = require('../models/SiteConfig')
-const { dataSuccess, notFoundError, validationError } = require('../utilities/responses')
+const { dataSuccess, notFoundError, validationError, blankSuccess } = require('../utilities/responses')
 const { User } = require('../models/User')
 
 module.exports = () => {
@@ -26,12 +26,16 @@ module.exports = () => {
 
     routes.get('/dashboard', UserMiddleware, getDashboard)
 
- routes.get('/sites', async(req, res)=>{
-        await SiteSettings.findAll().then((data)=>{
+    routes.get('/sites', async (req, res) => {
+        await SiteSettings.findAll().then((data) => {
             dataSuccess(res, data)
-        }).catch((err)=>{
+        }).catch((err) => {
             notFoundError(res, err)
         })
+    })
+
+    routes.get('/verify',UserMiddleware, async (req, res) => {
+        blankSuccess(res)
     })
 
     // Auth Routes   
@@ -44,18 +48,18 @@ module.exports = () => {
 
     // Password Routes
     routes.post("/forget-password", PasswordEmailValidators, passwordController.forget_pwd),
-    routes.post("/reset-password/:email", passwordController.reset_pwd),
-    routes.post("/new-password/:email", PasswordValidators, passwordController.new_pwd)
-    routes.post('/change-password',UserMiddleware, passwordController.change_password)
+        routes.post("/reset-password/:email", passwordController.reset_pwd),
+        routes.post("/new-password/:email", PasswordValidators, passwordController.new_pwd)
+    routes.post('/change-password', UserMiddleware, passwordController.change_password)
 
 
     // Profile Routes
-    routes.get('/profile',UserMiddleware, profileController.getProfile)
-    routes.put('/profile',UserMiddleware,async(req, res, next)=>{
-        await User.findOne({where:{email:req.body.email}}).then(data=>{
+    routes.get('/profile', UserMiddleware, profileController.getProfile)
+    routes.put('/profile', UserMiddleware, async (req, res, next) => {
+        await User.findOne({ where: { email: req.body.email } }).then(data => {
             data ? validationError(res, "The Email already exists") : next()
         })
-    } ,profileController.updateProfile)
+    }, profileController.updateProfile)
 
 
 
@@ -75,22 +79,22 @@ module.exports = () => {
 
     // routes Games
 
-    routes.get('/games', gamesController.getGames)
-    routes.get('/game/:id',UserMiddleware ,gamesController.getGame)
+    routes.get('/games', gamesController.show)
+    routes.get('/game/:id', UserMiddleware, gamesController.showGame)
 
 
-    routes.post('/play-game',UserMiddleware, gamesController.playGame )
-    routes.get('/played-game',UserMiddleware ,gamesController.playedGames )
+    routes.post('/play-game', UserMiddleware, gamesController.post)
+    routes.get('/played-game', UserMiddleware, gamesController.getPlayedGame)
 
     routes.get('/get-transfer-token', UserMiddleware, pointController.requestToken)
     routes.post('/verify-transfer-token', UserMiddleware, verifyTokenValidators, pointController.verifyToken)
-    routes.post('/transfer-points',UserMiddleware, PointTransferValidators, async (req, res, next) => {
+    routes.post('/transfer-points', UserMiddleware, PointTransferValidators, async (req, res, next) => {
         if (req.query.check === "true") {
             const data = await User.findOne({ where: { phone: req.body.phone } })
             dataSuccess(res, data)
         }
         else { next() }
-    },   pointController.pointTransfer)
+    }, pointController.pointTransfer)
 
 
 

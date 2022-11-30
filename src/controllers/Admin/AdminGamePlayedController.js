@@ -10,7 +10,7 @@ const AdminGameUrl = axios.create({
 
 
 exports.allUser = async(req, res)=>{
-    AdminGameUrl.get(`/userGame/game/${req.params.id}`).then((data)=>{
+    AdminGameUrl.get(`/userGame/game/${req.params.id}?iteration=${req.query.iteration}`).then((data)=>{
         return dataSuccess(res, data?.data?.data);
         }).catch((err)=>{
         return errorHandler(err)
@@ -41,4 +41,13 @@ exports.show = async(req, res)=>{
     }).catch((err)=>{
         return errorHandler(err)
     })
+}
+
+
+exports.findwinners =async(req, res) =>{
+    AdminGameUrl.post(`/findWinner/${req.params.id}`, req.body).then((data)=>{
+        return dataSuccess(res, data?.data?.data);
+   }).catch((err)=>{
+       return errorHandler(err)
+   })
 }
