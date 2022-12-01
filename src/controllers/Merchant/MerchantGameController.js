@@ -14,7 +14,7 @@ const AdminGameUrl = axios.create({
 
 
 exports.show = async (req, res) => {
-    MerchantGameURL.get(`/games`).then((data) => {
+    MerchantGameURL.get(`/games?site=${req.site}`).then((data) => {
         return dataSuccess(res, data?.data?.data);
     }).catch((err) => {
         return errorHandler(res, err)

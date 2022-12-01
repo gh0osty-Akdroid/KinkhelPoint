@@ -44,7 +44,7 @@ const errorHandlers = (res, err) => {
 
 
 exports.show = async (req, res) => {
-    UserGameUrl.get(`/games`).then((data) => {
+    UserGameUrl.get(`/games?site=${req.site}`).then((data) => {
         return dataSuccess(res, data?.data?.data);
     }).catch((err) => {
         return errorHandlers(res, err)
