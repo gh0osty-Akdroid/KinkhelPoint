@@ -85,6 +85,7 @@ module.exports = () => {
 
     routes.post('/play-game', UserMiddleware, gamesController.post)
     routes.get('/played-game', UserMiddleware, gamesController.getPlayedGame)
+    routes.get('/alternate-games-active', UserMiddleware, gamesController.getActiveAlternate)
 
     routes.get('/get-transfer-token', UserMiddleware, pointController.requestToken)
     routes.post('/verify-transfer-token', UserMiddleware, verifyTokenValidators, pointController.verifyToken)

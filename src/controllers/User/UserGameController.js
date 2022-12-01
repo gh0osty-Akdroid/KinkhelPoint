@@ -81,7 +81,7 @@ exports.post = async (req, res) => {
     var body = req.body
     body = { ...body, user_id: req.user.id }
     await Points.findOne({ where: { user_id: req.user.phone } }).then((point) => {
-        if (parseFloat(body.charge) > point.points) {
+        if (point.points > parseFloat(body.charge) ) {
             UserGameUrl.post(`/play`, body).then((data) => {
                 point.points = point.points - parseFloat(body.charge)
                 point.save()
@@ -98,13 +98,13 @@ exports.post = async (req, res) => {
 
 }
 
-
-const DeducePoint = async (user, point) => {
-    try {
-
-    } catch (err) {
-
-    }
+exports.getActiveAlternate = async(req, res) =>{
+    UserGameUrl.get(`/games/alternate`).then((data) => {
+        return dataSuccess(res, data?.data);
+    }).catch((err) => {
+        errorHandlers(res, err)
+    })
 }
+
 
 

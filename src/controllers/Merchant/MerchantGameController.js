@@ -53,7 +53,7 @@ exports.post = async (req, res) => {
         if (user !== null) {
             body = { ...body, user_id: user.id, merchant_id: req.merchant.id }
             await Points.findOne({ where: { user_id: user.phone } }).then((point) => {
-                if (parseFloat(body.charge) > point.points) {
+                if (point.points > parseFloat(body.charge)) {
                     MerchantGameURL.post(`/play`, body).then((data) => {
                         point.points = point.points - parseFloat(body.charge)
                         point.save()
@@ -72,7 +72,7 @@ exports.post = async (req, res) => {
         else {
             body = { ...body, merchant_id: req.merchant.id }
             await Points.findOne({ where: { user_id: req.user.phone } }).then((point) => {
-                if (parseFloat(body.charge) > point.points) {
+                if (point.points > parseFloat(body.charge)) {
                     MerchantGameURL.post(`/play`, body).then((data) => {
                         point.points = point.points - parseFloat(body.charge)
                         point.save()
