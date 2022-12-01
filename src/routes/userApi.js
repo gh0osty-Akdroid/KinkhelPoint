@@ -79,7 +79,7 @@ module.exports = () => {
 
     // routes Games
 
-    routes.get('/games', gamesController.show)
+    routes.get('/games',UserMiddleware,  gamesController.show)
     routes.get('/game/:id', UserMiddleware, gamesController.showGame)
 
 
