@@ -1,5 +1,5 @@
 const { default: axios } = require("axios");
-const { Points, addBonusPoint } = require("../../models/Points");
+const { Points, addBonusPoint, userPointTransfer } = require("../../models/Points");
 const { User } = require("../../models/User");
 const { dataSuccess, serverError, validationError, notFoundError, blankSuccess } = require("../../utilities/responses");
 
@@ -80,13 +80,23 @@ exports.getPlayedGame = async (req, res) => {
 
 exports.post = async (req, res) => {
     var body = req.body
-    body = { ...body, user_id: req.user.id }
+    body = { ...body, user_id: req.user.id } 
+
     await Points.findOne({ where: { user_id: req.user.phone } }).then((point) => {
         if (point.points > parseFloat(body.charge) ) {
-            UserGameUrl.post(`/play`, body).then((data) => {
+            UserGameUrl.post(`/play`, body).then(async (data) => {
                 point.points = point.points - parseFloat(body.charge)
-                point.save()
+                await point.save()
+                const values = {
+                    "token": null,
+                    "point_id": point.id,
+                    "points": body.charge,
+                    "remarks": `You spent ${body.charge} points for playing game.`,
+                    "others": `You spent ${body.charge} points for playing game.`,
+                }
+                await userPointTransfer(req, res, values)
                 blankSuccess(res)
+                
             }).catch((err) => {
                 errorHandlers(res, err)
             })

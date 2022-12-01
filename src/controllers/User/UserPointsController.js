@@ -10,8 +10,8 @@ exports.PointDetails = async (req, res) => {
     try {
         const { page } = req.query;
         const { limit, offset } = await getPagination(page, null);
-        await Points.findOne({ where: { user_id: req.user.phone } }).then(async (data) => {
-            await PointsDetail.findAndCountAll({ where: { point_id: data.id }, limit: limit, offset: offset }).then(async (e) => {
+        await Points.findOne({ where: { user_id: req.user.phone },}).then(async (data) => {
+            await PointsDetail.findAndCountAll({ where: { point_id: data.id }, limit: limit, offset: offset , order: [["createdAt", "DESC"]] }).then(async (e) => {
                 const data = await getPagingData(e, page, limit)
                 dataSuccess(res, data)
             }).catch((err) => notFoundError(res, err))

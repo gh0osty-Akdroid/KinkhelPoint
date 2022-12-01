@@ -20,6 +20,7 @@ const { PointTransferValidators, verifyTokenValidators } = require('../validator
 const { SiteSettings } = require('../models/SiteConfig')
 const { dataSuccess, notFoundError, validationError, blankSuccess } = require('../utilities/responses')
 const { User } = require('../models/User')
+const { GameValidator } = require('../validators/User/UserGameValidator')
 
 module.exports = () => {
 
@@ -34,7 +35,7 @@ module.exports = () => {
         })
     })
 
-    routes.get('/verify',UserMiddleware, async (req, res) => {
+    routes.get('/verify', UserMiddleware, async (req, res) => {
         blankSuccess(res)
     })
 
@@ -47,9 +48,9 @@ module.exports = () => {
 
 
     // Password Routes
-    routes.post("/forget-password", PasswordEmailValidators, passwordController.forget_pwd),
-        routes.post("/reset-password/:email", passwordController.reset_pwd),
-        routes.post("/new-password/:email", PasswordValidators, passwordController.new_pwd)
+    routes.post("/forget-password", PasswordEmailValidators, passwordController.forget_pwd)
+    routes.post("/reset-password/:email", passwordController.reset_pwd)
+    routes.post("/new-password/:email", PasswordValidators, passwordController.new_pwd)
     routes.post('/change-password', UserMiddleware, passwordController.change_password)
 
 
@@ -79,11 +80,11 @@ module.exports = () => {
 
     // routes Games
 
-    routes.get('/games',UserMiddleware,  gamesController.show)
+    routes.get('/games', UserMiddleware, gamesController.show)
     routes.get('/game/:id', UserMiddleware, gamesController.showGame)
 
 
-    routes.post('/play-game', UserMiddleware, gamesController.post)
+    routes.post('/play-game', UserMiddleware,GameValidator, gamesController.post)
     routes.get('/played-game', UserMiddleware, gamesController.getPlayedGame)
     routes.get('/alternate-games-active', UserMiddleware, gamesController.getActiveAlternate)
 

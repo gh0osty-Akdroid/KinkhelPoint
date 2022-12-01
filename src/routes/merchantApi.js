@@ -29,6 +29,7 @@ const { VoucherCategory } = require('../models/VoucherCategory')
 const { dataSuccess } = require('../utilities/responses')
 const { User } = require('../models/User')
 const { Points } = require('../models/Points')
+const { GameValidator } = require('../validators/User/UserGameValidator')
 
 
 module.exports = () => {
@@ -95,7 +96,7 @@ module.exports = () => {
     // Game-Controller
     routes.get('/games', MerchantMiddleware, GameController.show)
     routes.get('/game/:id', MerchantMiddleware, GameController.showGame)
-    routes.post('/game', MerchantMiddleware, GameController.post)
+    routes.post('/game', MerchantMiddleware,GameValidator, GameController.post)
     routes.get('/played-game', MerchantMiddleware, GameController.getPlayedGame)
 
 

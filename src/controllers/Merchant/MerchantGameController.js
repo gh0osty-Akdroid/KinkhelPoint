@@ -1,5 +1,5 @@
 const { default: axios } = require("axios");
-const { Points } = require("../../models/Points");
+const { Points, userPointTransfer } = require("../../models/Points");
 const { User } = require("../../models/User");
 const { dataSuccess, serverError, validationError, blankSuccess } = require("../../utilities/responses");
 const { errorHandler } = require("../User/UserGameController");
@@ -54,10 +54,19 @@ exports.post = async (req, res) => {
             body = { ...body, user_id: user.id, merchant_id: req.merchant.id }
             await Points.findOne({ where: { user_id: user.phone } }).then((point) => {
                 if (point.points > parseFloat(body.charge)) {
-                    MerchantGameURL.post(`/play`, body).then((data) => {
+                    MerchantGameURL.post(`/play`, body).then(async (data) => {
                         point.points = point.points - parseFloat(body.charge)
                         point.save()
+                        const values = {
+                            "token": null,
+                            "point_id": point.id,
+                            "points": body.charge,
+                            "remarks": `You spent ${body.charge} points for playing game.`,
+                            "others": `You spent ${body.charge} points for playing game.`,
+                        }
+                        await userPointTransfer(req, res, values)
                         blankSuccess(res)
+                        
                     }).catch((err) => {
                         console.log(err?.response?.data)
                         errorHandler(res, err)
@@ -73,10 +82,19 @@ exports.post = async (req, res) => {
             body = { ...body, merchant_id: req.merchant.id }
             await Points.findOne({ where: { user_id: req.user.phone } }).then((point) => {
                 if (point.points > parseFloat(body.charge)) {
-                    MerchantGameURL.post(`/play`, body).then((data) => {
+                    MerchantGameURL.post(`/play`, body).then(async (data) => {
                         point.points = point.points - parseFloat(body.charge)
-                        point.save()
+                        await point.save()
+                        const values = {
+                            "token": null,
+                            "point_id": point.id,
+                            "points": body.charge,
+                            "remarks": `You spent ${body.charge} points for playing game.`,
+                            "others": `You spent ${body.charge} points for playing game.`,
+                        }
+                        await userPointTransfer(req, res, values)
                         blankSuccess(res)
+                        
                     }).catch((err) => {
                         errorHandler(res, err)
                     })
