@@ -6,30 +6,30 @@ const { dataCreated, serverError, dataSuccess, notFoundError, blankSuccess } = r
 
 exports.AddInventory = async (req, res) => {
     const body = req.body
-    try{
+    try {
         const data = await Products.build({
             id: generateId(),
             name: body.name,
             merchant_id: req.merchant.id
         })
-        await data.save().then(()=>{
-             body?.images.forEach(async e => {
-            var img = await addImage(e)
-            var image = await ProductImage.build({ product_id: data.id, image: img })
-            await image.save()
-        });
-        body?.variation.forEach(async e => {
-            var variation = await ProductVariation.build({
-                product_id: data.id,
-                size: e["size"],
-                price: e["price"],
-            })
-            await variation.save()
-        });
+        await data.save().then(() => {
+            body?.images.forEach(async e => {
+                var img = await addImage(e)
+                var image = await ProductImage.build({ product_id: data.id, image: img })
+                await image.save()
+            });
+            body?.variation.forEach(async e => {
+                var variation = await ProductVariation.build({
+                    product_id: data.id,
+                    size: e["size"],
+                    price: e["price"],
+                })
+                await variation.save()
+            });
         })
         return dataCreated(res, data)
     }
-    catch(err){
+    catch (err) {
         serverError(res, err)
     }
 }
@@ -38,33 +38,38 @@ exports.AddInventory = async (req, res) => {
 exports.getAllInventory = async (req, res) => {
     try {
         await Products.findAll({ where: { merchant_id: req.merchant.id }, include: [{ model: ProductImage }, { model: ProductVariation }] }).then(data => {
-            data.length >0 ? dataSuccess(res, data) : notFoundError(res, null)
-            
-        }).catch(err=>{
+            data.length > 0 ? dataSuccess(res, data) : notFoundError(res, null)
+
+        }).catch(err => {
             return notFoundError(res, err)
         })
     } catch (err) {
         return serverError(res, err)
     }
-    
+
 }
 
 
-exports.getSingleInventory= async(req, res)=>{
-    await Products.findOne({ where : { id : req.params.id }, include: [{ model: ProductImage }, { model: ProductVariation }] }).then((data)=>{
+exports.getSingleInventory = async (req, res) => {
+    await Products.findOne({ where: { id: req.params.id }, include: [{ model: ProductImage }, { model: ProductVariation }] }).then((data) => {
         return dataSuccess(res, data)
-    }).catch(err=>{
+    }).catch(err => {
         serverError(res, err)
     })
 }
 
 
 
-exports.deleteInventory= async(req, res)=>{
-    await Products.findOne({ where : { id : req.params.id }, include: [{ model: ProductImage }, { model: ProductVariation }] }).then((data)=>{
-        data.destroy()
-        return blankSuccess(res)
-    }).catch(err=>{
+exports.deleteInventory = async (req, res) => {
+    try {
+        await Products.findOne({ where: { id: req.params.id }, include: [{ model: ProductImage }, { model: ProductVariation }] }).then((data) => {
+            try { data.destroy() } catch (err) { serverError(res, err) }
+            return blankSuccess(res)
+        }).catch(err => {
+            serverError(res, err)
+        })
+    } catch (err) {
         serverError(res, err)
-    })
+    }
+
 }

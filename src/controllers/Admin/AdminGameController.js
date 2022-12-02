@@ -4,7 +4,7 @@ const { errorHandler } = require("../User/UserGameController");
 
 const AdminGameUrl = axios.create({
     // baseURL: process.env.GAMEURL
-    baseURL :"https://311b-2400-1a00-b020-f0c-6972-8fa7-e598-4c0f.in.ngrok.io/"
+    baseURL :"http://52.26.60.188:6969/api/v1/admin/"
 })
 
 

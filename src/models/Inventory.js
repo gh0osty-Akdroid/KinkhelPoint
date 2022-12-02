@@ -52,7 +52,7 @@ const ProductImage = db.define('ProductImage', {
 }, { tableName: 'product_image' })
 
 
-ProductImage.sync({ alter: false })
+ProductImage.sync({ alter: true })
 
 
 ProductImage.belongsTo(Products, {foreignKey:"product_id"})
