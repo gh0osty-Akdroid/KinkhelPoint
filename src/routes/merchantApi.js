@@ -89,7 +89,7 @@ module.exports = () => {
     //Inventory Controller
     routes.get('/get-all-inventory', MerchantMiddleware, getAllInventory)
     routes.get('/get-inventory/:id', MerchantMiddleware, getSingleInventory)
-    routes.delete('/deleteInventory/:id', MerchantMiddleware,deleteInventory )
+    routes.post('/deleteInventory/:id', MerchantMiddleware,deleteInventory )
     routes.post('/add-product', MerchantMiddleware, MerchantValidator.store, AddInventory)
 
 
