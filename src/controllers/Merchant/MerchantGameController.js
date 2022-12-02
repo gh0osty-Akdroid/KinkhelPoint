@@ -66,7 +66,7 @@ exports.post = async (req, res) => {
                         }
                         await userPointTransfer(req, res, values)
                         blankSuccess(res)
-                        
+
                     }).catch((err) => {
                         console.log(err?.response?.data)
                         errorHandler(res, err)
@@ -76,7 +76,6 @@ exports.post = async (req, res) => {
                     validationError(res, "You dont have sufficient point to play this game.")
                 }
             })
-           
         }
         else {
             body = { ...body, merchant_id: req.merchant.id }
@@ -94,7 +93,7 @@ exports.post = async (req, res) => {
                         }
                         await userPointTransfer(req, res, values)
                         blankSuccess(res)
-                        
+
                     }).catch((err) => {
                         errorHandler(res, err)
                     })
@@ -102,15 +101,15 @@ exports.post = async (req, res) => {
                 else {
                     validationError(res, "You dont have sufficient point to play this game.")
                 }
-
             })
-
-
-
-
         }
-
     })
-
 }
 
+exports.showAlternate = async (req, res) => {
+    MerchantGameURL.get(`/games/alternate`).then((data) => {
+        return dataSuccess(res, data?.data);
+    }).catch((err) => {
+        errorHandler(res, err)
+    })
+}

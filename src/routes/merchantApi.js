@@ -95,6 +95,7 @@ module.exports = () => {
 
     // Game-Controller
     routes.get('/games', MerchantMiddleware, GameController.show)
+    routes.get('/alternate-games', MerchantMiddleware, GameController.showAlternate)
     routes.get('/game/:id', MerchantMiddleware, GameController.showGame)
     routes.post('/game', MerchantMiddleware,GameValidator, GameController.post)
     routes.get('/played-game', MerchantMiddleware, GameController.getPlayedGame)

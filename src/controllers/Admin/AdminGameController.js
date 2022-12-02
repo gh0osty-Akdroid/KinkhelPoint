@@ -3,7 +3,8 @@ const { dataSuccess, serverError, validationError, blankSuccess } = require("../
 const { errorHandler } = require("../User/UserGameController");
 
 const AdminGameUrl = axios.create({
-    baseURL: process.env.GAMEURL
+    // baseURL: process.env.GAMEURL
+    baseURL :"https://311b-2400-1a00-b020-f0c-6972-8fa7-e598-4c0f.in.ngrok.io/"
 })
 
 
@@ -66,9 +67,11 @@ exports.getEnableGames = async (req, res) => {
 
 exports.postAlternateGame = async (req, res) => {
     const body = req.body
+    console.log(body)
     AdminGameUrl.post(`/games/alternate`, body).then((data) => {
         return dataSuccess(res, data?.data?.data);
     }).catch((err) => {
+        console.log(err)
         return errorHandler(res, err)
     })
 }
