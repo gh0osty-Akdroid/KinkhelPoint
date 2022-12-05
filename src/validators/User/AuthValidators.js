@@ -78,7 +78,7 @@ exports.LoginValidators = [
 exports.LoginVerifyValidators = [
     check('token').notEmpty().withMessage('Please enter a valid value.').bail()
         .custom(async (value, { req }) => {
-            await await User.findOne({ where: { phone: req.params.user }, include:[{model:Merchant}] }).then(async (data) => {
+            await await User.findOne({ where: { phone: req.params.user }, include:[{model:Merchant}],  attributes: {exclude: ['password']}, }).then(async (data) => {
                 const verify = await Verification.findOne({ where: { user_id: data.id, is_email: false, token: value } })
                 if (verify) {
                     req.user = data

@@ -49,15 +49,15 @@ module.exports = () => {
 
 
     routes.get('/dashboard', MerchantMiddleware, async (req, res) => {
-        const merchant = await Merchant.findAndCountAll({ where: { merchant_id: req.merchant.id }, limit:25, sort:[['createdAt',"DESC"]] })
-        const voucher = await VoucherCategory.findAndCountAll({ where: { merchant_id: req.merchant.id }, limit:25, sort:[["createdAt","DESC"]] })
+        const merchant = await Merchant.findAndCountAll({ where: { merchant_id: req.merchant.id }, limit: 25, sort: [['createdAt', "DESC"]] })
+        const voucher = await VoucherCategory.findAndCountAll({ where: { merchant_id: req.merchant.id }, limit: 25, sort: [["createdAt", "DESC"]] })
         dataSuccess(res, { merchant: merchant, voucher: voucher })
     })
 
     // password routes
     routes.post('/forget-password', passwordController.forget_pwd)
-    routes.post("/reset-password/:email", passwordController.reset_pwd),
-        routes.post("/new-password/:email", PasswordValidators, passwordController.new_pwd)
+    routes.post("/reset-password/:email", passwordController.reset_pwd)
+    routes.post("/new-password/:email", PasswordValidators, passwordController.new_pwd)
     routes.post('/change-password', MerchantMiddleware, PasswordValidators, passwordController.change_password)
 
     // Point Config
@@ -89,7 +89,7 @@ module.exports = () => {
     //Inventory Controller
     routes.get('/get-all-inventory', MerchantMiddleware, getAllInventory)
     routes.get('/get-inventory/:id', MerchantMiddleware, getSingleInventory)
-    routes.post('/deleteInventory/:id', MerchantMiddleware,deleteInventory )
+    routes.post('/deleteInventory/:id', MerchantMiddleware, deleteInventory)
     routes.post('/add-product', MerchantMiddleware, MerchantValidator.store, AddInventory)
 
 
@@ -97,20 +97,20 @@ module.exports = () => {
     routes.get('/games', MerchantMiddleware, GameController.show)
     routes.get('/alternate-games', MerchantMiddleware, GameController.showAlternate)
     routes.get('/game/:id', MerchantMiddleware, GameController.showGame)
-    routes.post('/game', MerchantMiddleware,GameValidator, GameController.post)
+    routes.post('/game', MerchantMiddleware, GameValidator, GameController.post)
     routes.get('/played-game', MerchantMiddleware, GameController.getPlayedGame)
 
 
     // Point tranfer Routes 
     routes.get('/get-transfer-token', MerchantMiddleware, pointController.requestToken)
     routes.post('/verify-transfer-token', MerchantMiddleware, verifyTokenValidators, pointController.verifyToken)
-    routes.post('/transfer-points',MerchantMiddleware, PointTransferValidators, async (req, res, next) => {
+    routes.post('/transfer-points', MerchantMiddleware, PointTransferValidators, async (req, res, next) => {
         if (req.query.check === "true") {
-            const data = await User.findOne({ where: { phone: req.body.phone }, include:[{model:Points}] })
+            const data = await User.findOne({ where: { phone: req.body.phone }, include: [{ model: Points }] })
             dataSuccess(res, data)
         }
         else { next() }
-    },   pointController.pointTransfer)
+    }, pointController.pointTransfer)
 
     // Api Controller
     routes.post('/main-api-controller', ApiValidators, ApiController)

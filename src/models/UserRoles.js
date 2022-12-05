@@ -18,6 +18,7 @@ const UserRoles= db.define('UserRoles', {
             }
         }
     },
+    
     user_id: {
         type: BIGINT,
         allowNull: false,

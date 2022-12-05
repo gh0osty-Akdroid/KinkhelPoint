@@ -1,4 +1,5 @@
 const { off } = require("pdfkit")
+const { Op } = require("sequelize")
 const db = require("../../config/db")
 const MerchantPointConfig = require("../../models/MerchantPointConfig")
 const PointConfig = require("../../models/PointConfig")
@@ -6,6 +7,7 @@ const { userPointTransfer, Points } = require("../../models/Points")
 const PointsDetail = require("../../models/PointsDetail")
 const { createToken, Token } = require("../../models/Token")
 const { User } = require("../../models/User")
+const UserRoles = require("../../models/UserRoles")
 const { getPagination, getPagingData } = require("../../utilities/paginator")
 const { serverError, dataAccepted, validationError, dataSuccess, notFoundError } = require("../../utilities/responses")
 
@@ -13,10 +15,9 @@ const { serverError, dataAccepted, validationError, dataSuccess, notFoundError }
 exports.requestToken = async (req, res) => {
     const user = req.user
     var { customer } = req.query
-    console.log(customer)
     try {
         if (customer) {
-            await User.findOne({ where: { phone: `${customer}` } }).then((data) => {
+            await User.findOne({ where: { phone: `${customer}` } , include:[{ model: UserRoles,  where:{role:{[Op.like]: '%Customer%'} }}]}).then((data) => {
                 data ? createToken(req, res, data) : notFoundError(res, "Requested user has not been found.")
             }).catch(() => {
                 serverError(res, "Something went wrong")
@@ -36,7 +37,7 @@ exports.verifyToken = async (req, res) => {
     const body = req.body
     const { customer } = req.query
     if (customer) {
-        const user_ = await User.findOne({ where: { phone: `${customer}` }, include: [{ model: Points }] })
+        const user_ = await User.findOne({ where: { phone: `${customer}` }, include: [{ model: Points }], })
         await Token.findOne({ where: { user_id: user_.id, token: body.token } }).then(async (data) => {
             data !== null ? dataSuccess(res, user_) : validationError(res, "The token has been expired. Try again later.")
         }).catch((err) => {

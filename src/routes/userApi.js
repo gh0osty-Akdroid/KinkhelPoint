@@ -57,9 +57,13 @@ module.exports = () => {
     // Profile Routes
     routes.get('/profile', UserMiddleware, profileController.getProfile)
     routes.put('/profile', UserMiddleware, async (req, res, next) => {
-        await User.findOne({ where: { email: req.body.email } }).then(data => {
-            data ? validationError(res, "The Email already exists") : next()
-        })
+        if (req.body.email !== req.user.email){
+            await User.findOne({ where: { email: req.body.email } }).then(data => {
+                data ? validationError(res, "The Email already exists") : next()
+            })
+        } else next()
+
+        
     }, profileController.updateProfile)
 
 

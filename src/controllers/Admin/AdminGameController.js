@@ -3,8 +3,8 @@ const { dataSuccess, serverError, validationError, blankSuccess } = require("../
 const { errorHandler } = require("../User/UserGameController");
 
 const AdminGameUrl = axios.create({
-    // baseURL: process.env.GAMEURL
-    baseURL :"http://52.26.60.188:6969/api/v1/admin/"
+    baseURL: process.env.GAMEURL
+    // baseURL :"http://52.26.60.188:6969/api/v1/admin/"
 })
 
 
@@ -124,12 +124,22 @@ exports.Winner = async (req, res) => {
 
 
 exports.AddWinner = async (req, res) => {
-    AdminGameUrl.post('winners', req.body).then(data => {
-        return dataSuccess(res, data?.data?.data)
-    }).catch(err => {
-        console.log(err?.response?.data?.error)
-        return errorHandler(err)
-    })
+    try {
+    console.log(req.body)
+
+        AdminGameUrl.post('/winners', req.body).then(data => {
+            console.log(res?.data?.data?.data)
+            return dataSuccess(res, data?.data?.data)
+            
+        }).catch(err => {
+            console.log(err?.response?.data?.error)
+            return errorHandler(err)
+        })
+    } catch (err) {
+        return errorHandler(res, err)
+        
+    }
+    
 }
 
 

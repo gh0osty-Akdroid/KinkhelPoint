@@ -88,6 +88,9 @@ User.hasOne(Merchant, {
 })
 
 
+Merchant.belongsTo(Merchant, {foreignKey:"merchant_id", as:"Parent"})
+Merchant.hasMany(Merchant, {foreignKey:"merchant_id", as:"Child"})
+
 const transaction = db.transaction()
 const createMerchant = async (res, data) => {
     try {

@@ -14,6 +14,7 @@ const sns= new aws.SNS({ apiVersion: '2010-03-31' })
 
 
 const sendOTP = async (res, phone, message) => {
+  console.log(phone)
   var params = {
     Message: message,
     PhoneNumber: phone,
