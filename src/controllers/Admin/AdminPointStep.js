@@ -11,7 +11,6 @@ exports.addBadge = async (req, res) => {
     await check.save().then((data) => {
         dataCreated(res, data)
     }).catch((err) => {
-        console.log(err);
         serverError(res, err)
     })
 
@@ -19,11 +18,10 @@ exports.addBadge = async (req, res) => {
 exports.ShowBadge = async (req, res) => {
     const { page, size } = req.query;
     const { limit, offset } = await getPagination(page, size);
-    console.log(req.site)
     await PointBadge.findAndCountAll({ limit: limit, offset: offset, where: { site: req.site } }).then(async (e) => {
         const data = await getPagingData(e, page, limit)
         dataSuccess(res, data)
-    }).catch((err) => console.log(err))
+    }).catch((err) => serverError(res,err))
 
 }
 

@@ -1,7 +1,7 @@
 const { Merchant, createMerchant, } = require('../../models/Merchant')
 const { Points, userPointTransfer } = require('../../models/Points')
 const { User, createUser } = require('../../models/User')
-const { generateId, generateCode, generateMerchantId, generateUId, generateSecretKey } = require('../../utilities/random')
+const { generateId, generateCode, generateMerchantId, generateUId, generateSecretKey, generatePassword } = require('../../utilities/random')
 const { dataSuccess, notFoundError, serverError, dataAccepted } = require('../../utilities/responses')
 const bcrypt = require('bcrypt');
 const { addImage } = require('../../utilities/fileHandler')
@@ -9,6 +9,7 @@ const UserRoles = require('../../models/UserRoles')
 const { getPagingData, getPagination } = require('../../utilities/paginator')
 const { Op } = require('sequelize')
 const MerchantPointConfig = require('../../models/MerchantPointConfig')
+const sendOTP = require('../../utilities/otpHandler')
 
 
 exports.getMerchant = async (req, res) => {
@@ -53,7 +54,8 @@ exports.createMerchants = async (req, res) => {
         const merchant = await createMerchant(res, body)
     }
     else {
-        var hash = await bcrypt.hash(body.password, 10)
+        var password = generatePassword()
+        var hash = await bcrypt.hash(password, 10)
         if (body.image !== "") {
             img = await addImage(body.image)
         }
@@ -81,14 +83,14 @@ exports.createMerchants = async (req, res) => {
             })
             await merchant.save().then(async () => {
                 try {
+                    await sendOTP(res, body.phone, `Your password is ${password}`)
                     await MerchantPointConfig.create({ merchant_id: merchant.id, id: generateId() })
                     const userRoles = await UserRoles.create({ user_id: user.id, role: body.role, id: generateId() })
                     return dataAccepted(res)
                 }
                 catch (err) {
-                    console.log(err)
+                    serverError(res, err)
                 }
-
             }).catch((err) => {
                 return serverError(res, err)
             }).catch((err) => {

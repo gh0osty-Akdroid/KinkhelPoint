@@ -12,7 +12,6 @@ exports.show = async (req, res) => {
     AdminGameUrl.get(`/games?search=${!req.query.input ? "" : req.query.input}&site=${req.site}`).then((data) => {
         return dataSuccess(res, data?.data?.data);
     }).catch((err) => {
-        console.log(err)
         return errorHandler(res, err)
     })
 }
@@ -42,10 +41,9 @@ exports.delete = async (req, res) => {
 
 exports.post = async (req, res) => {
     const body = req.body
-    AdminGameUrl.post(`/games`, {region : req.site, ...body}).then((data) => {
+    AdminGameUrl.post(`/games`, { region: req.site, ...body }).then((data) => {
         blankSuccess(res)
     }).catch((err) => {
-        console.log(err?.response?.data)
         errorHandler(res, err)
     })
 }
@@ -67,11 +65,9 @@ exports.getEnableGames = async (req, res) => {
 
 exports.postAlternateGame = async (req, res) => {
     const body = req.body
-    console.log(body)
     AdminGameUrl.post(`/games/alternate`, body).then((data) => {
         return dataSuccess(res, data?.data?.data);
     }).catch((err) => {
-        console.log(err)
         return errorHandler(res, err)
     })
 }
@@ -92,7 +88,6 @@ exports.getAlternateGame = async (req, res) => {
 
 exports.postEnableGames = async (req, res) => {
     const body = req.body
-    console.log(body)
     AdminGameUrl.post(`/games/enabled`, body).then((data) => {
         return dataSuccess(res, data?.data?.data);
     }).catch((err) => {
@@ -125,21 +120,16 @@ exports.Winner = async (req, res) => {
 
 exports.AddWinner = async (req, res) => {
     try {
-    console.log(req.body)
-
         AdminGameUrl.post('/winners', req.body).then(data => {
-            console.log(res?.data?.data?.data)
             return dataSuccess(res, data?.data?.data)
-            
         }).catch(err => {
-            console.log(err?.response?.data?.error)
             return errorHandler(err)
         })
     } catch (err) {
         return errorHandler(res, err)
-        
+
     }
-    
+
 }
 
 

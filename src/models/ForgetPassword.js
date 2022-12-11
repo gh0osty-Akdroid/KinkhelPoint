@@ -2,19 +2,19 @@ const { STRING, BOOLEAN, INTEGER, DOUBLE, TEXT, BIGINT } = require('sequelize')
 const Sequelize = require('sequelize')
 const db = require('../config/db')
 const ejs = require('ejs')
-const { sendEmail } = require('../utilities/mailer')
+const { sendMail } = require('../utilities/mailer')
 const sendOTP = require('../utilities/otpHandler')
 const { generateCode, generateId, generateToken } = require('../utilities/random')
 const { blankSuccess } = require('../utilities/responses')
 
-const ForgetPassword = db.define('ForgetPassword',{
+const ForgetPassword = db.define('ForgetPassword', {
     id: {
         type: BIGINT,
         autoIncrement: true,
         primaryKey: true
     },
     token: {
-        allowNull:false,
+        allowNull: false,
         type: STRING,
         unique: true
     },
@@ -30,21 +30,21 @@ const ForgetPassword = db.define('ForgetPassword',{
             key: 'id'
         }
     }
-},{
+}, {
     tableName: 'forget_passwords'
 })
 
-ForgetPassword.sync({alter:false})
+ForgetPassword.sync({ alter: false })
 
 
 
-const createForgetPassword = async(res, user, mode) =>{
+const createForgetPassword = async (res, user, mode) => {
     const transaction = await db.transaction()
     const code = generateToken()
     const data = ForgetPassword.build({
-        "id":generateId(),
+        "id": generateId(),
         'user_id': user.id,
-        'token': code, 
+        'token': code,
         'old_password': user.password,
     }, { transaction })
 
@@ -53,15 +53,13 @@ const createForgetPassword = async(res, user, mode) =>{
         await data.save()
     })
     await transaction.commit()
-    if (mode==="phone"){
-        sendOTP(res, user.phone, code)
-    }
-    else{
-        const data = await ejs.renderFile(__dirname + "/../../src/public/views/passwordResetToken.ejs", { token: code })
-        sendEmail(user.email,"Password Reset Code", data)
-        return blankSuccess(res)
-    }
+
+    sendOTP(res, user.phone, `Your verification code is: ${code}`)
+    // const data_ = await ejs.renderFile(__dirname + "/../../src/public/views/passwordResetToken.ejs", { token: code })
+    // sendMail(user.email, "Password Reset Code", data_)
     
 }
+    
 
-module.exports = {ForgetPassword, createForgetPassword}
+
+module.exports = { ForgetPassword, createForgetPassword }

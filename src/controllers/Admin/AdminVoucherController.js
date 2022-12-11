@@ -32,7 +32,6 @@ exports.VoucherStore = async (req, res, body) => {
         }
         dataCreated(res, "The Voucher List has been created.")
     } catch (err) {
-        console.log(err);
         serverError(res, err)
     }
 }

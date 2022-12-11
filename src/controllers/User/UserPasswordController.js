@@ -12,7 +12,7 @@ const saltRounds = 10
 exports.forget_pwd = async (req, res) => {
     const email = req.body.email
     const mode = req.query.mode
-    await User.findOne({ where: { email: email } }).then(async (user) => {
+    await User.findOne({ where: { phone: email } }).then(async (user) => {
         const data = await ForgetPassword.ForgetPassword.findOne({ where: { user_id: user.id } })
         if (!data) {
             await ForgetPassword.createForgetPassword(res, user, mode)
@@ -20,7 +20,7 @@ exports.forget_pwd = async (req, res) => {
         else {
             data.destroy().then(async () => ForgetPassword.createForgetPassword(res, user, mode))
         }
-    }).catch((res) => {
+    }).catch((err) => {
         return responses.notFoundError(res, "User not found with provided email.")
     })
 }
@@ -28,7 +28,7 @@ exports.forget_pwd = async (req, res) => {
 exports.reset_pwd = async (req, res) => {
     const email = req.params.email
     const token = req.body.token
-    await User.findOne({ where: { email: email } }).then(async (user) => {
+    await User.findOne({ where: { phone: email } }).then(async (user) => {
         const user_ = await ForgetPassword.ForgetPassword.findOne({ where: { token: token, user_id: user.id } })
         if (user_) {
             responses.blankSuccess(res)
@@ -36,7 +36,7 @@ exports.reset_pwd = async (req, res) => {
         else {
             responses.unauthorizedError(res, "Token has been expired.")
         }
-    }).catch((err) => {
+    }).catch((err) => { 
         responses.notFoundError(res, "User Not found.")
     })
 }
@@ -44,7 +44,7 @@ exports.reset_pwd = async (req, res) => {
 exports.new_pwd = async (req, res) => {
     const body = req.body
     const email = req.params.email
-    await User.findOne({ where: { email: email } }).then(async (user) => {
+    await User.findOne({ where: { phone: email } }).then(async (user) => {
         await bcrypt.hash(body.password, saltRounds).then(async (hash) => {
             user.update({ password: hash })
         })
@@ -55,7 +55,7 @@ exports.new_pwd = async (req, res) => {
 exports.change_password = async (req, res) => {
     const body = req.body
     const user = req.user
-    await User.findOne({where:{id:user.id}}).then(async(data)=>{
+    await User.findOne({ where: { id: user.id } }).then(async (data) => {
         await bcrypt.compare(body.old_password, data.password, async function (err, result) {
             if (result !== true) return responses.validationError(res, "Old password doesnot match")
             await bcrypt.hash(body.new_password, saltRounds).then(async (hash) => {
@@ -64,7 +64,7 @@ exports.change_password = async (req, res) => {
             return responses.blankSuccess(res)
         })
     })
-    
+
 }
 
 

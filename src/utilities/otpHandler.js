@@ -14,23 +14,24 @@ const sns= new aws.SNS({ apiVersion: '2010-03-31' })
 
 
 const sendOTP = async (res, phone, message) => {
-  console.log(phone)
   var params = {
     Message: message,
     PhoneNumber: phone,
     MessageAttributes: {
       'AWS.SNS.SMS.SenderID': {
         'DataType': 'String',
-        'StringValue': "Test"
+        'StringValue': "Kinkhel"
       }
     }
   };
   console.log(message)
+  // return dataSuccess(res, "You will Soon receive the code.")
+
   var publishTextPromise = sns.publish(params).promise();
 
   publishTextPromise.then(
     function (data) {
-      dataSuccess(res, message)
+      dataSuccess(res, "You will Soon receive the code.")
     }).catch(
       function (err) {
         serverError(res, err)

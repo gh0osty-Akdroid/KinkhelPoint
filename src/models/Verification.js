@@ -54,7 +54,7 @@ const createPhoneToken = async (res, user) => {
     })
 
     await token.save().then(() => {
-        sendOTP(res, user.phone, `Your Verification Code is ${OTP}`)
+        sendOTP(res, user.phone, `Your Verification Code is: ${OTP}`)
     }).catch(err => console.log(err))
 }
 
@@ -63,7 +63,7 @@ const createPhoneToken = async (res, user) => {
 const createEmailtoken = async (user,type, res) => {
     try {
         const transaction = await db.transaction()
-        const vCode = generateCode()
+        const vCode = generateToken()
         const token = Verification.build({
             'user_id': user.id,
             'token': vCode,

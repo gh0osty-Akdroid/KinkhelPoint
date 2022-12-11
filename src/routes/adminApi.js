@@ -70,15 +70,17 @@ module.exports = () => {
     routes.post('/login-verify/:user', authValidator.LoginVerifyValidators, authController.LoginVerification)
     routes.post('/resend-login-code/:user', authController.ResendLoginOtp)
     routes.post('/change-password', AdminMiddleware, passwordController.change_password)
+    routes.post("/forget-password", passwordController.forget_pwd)
+    routes.post("/reset-password/:email", passwordController.reset_pwd)
+    routes.post("/new-password/:email", passwordController.new_pwd)
+
+
+
     routes.put('/profile', AdminMiddleware, profileController.updateProfile)
     routes.get('/profile', AdminMiddleware, profileController.getProfile)
-
-
     routes.get('/verify', AdminMiddleware, async (req, res) => {
         blankSuccess(res)
     })
-
-
 
     // Point Config Routes
     routes.get('/pointsConfig/:site', AdminMiddleware, PointConfigController.show)

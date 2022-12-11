@@ -29,7 +29,6 @@ exports.Login = async (req, res) => {
     const { password } = req.body
     const merchant = req.user
     await bcrypt.compare(password, merchant.password, async function (err, result) {
-        console.log(result)
         if (result === true) await createOTPtoken(res, merchant)
         else return responses.notFoundError(res, "Merchant with these credentials cannot be found.")
     })

@@ -1,6 +1,7 @@
 const {Points, addBonusPoint} = require('../models/Points')
 const PointConfig = require('../models/PointConfig')
 const PointBonus = require('../models/PointBonus')
+const { serverError } = require('./responses')
 const SITE_ID = process.env.SITE_ID
 
 
@@ -17,7 +18,7 @@ exports.registerPoint = async(req, res, user) =>{
         }
         await addBonusPoint(data)
     } catch (err) {
-         return console.log(err)
+         return console.log(res, err)
     }
 }
 
@@ -58,6 +59,6 @@ exports.redeemPoints = async(req, res, user, voucher)=>{
         }
         await addBonusPoint(req, res, data)
     } catch (err) {
-         return console.log(err)
+         return serverError(res, err)
     }
 }

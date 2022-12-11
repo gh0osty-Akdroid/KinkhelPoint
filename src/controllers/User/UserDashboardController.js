@@ -21,7 +21,6 @@ exports.getDashboard = async (req, res) => {
         })
         return dataSuccess(res, { "point": point, "clients": clients, "banner": banner, "badge": badge, "winners": winners })
     } catch (err) {
-        console.log(err)
         serverError(res, err)
     }
 

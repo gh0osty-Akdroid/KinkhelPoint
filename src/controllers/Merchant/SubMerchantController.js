@@ -127,7 +127,6 @@ exports.sendPoint = async (req, res) => {
         await userPointTransfer(req, res, value)
         return blankSuccess(res)
     }).catch(err => {
-        console.log(err)
         serverError(res, err)
     })
 }

@@ -1,3 +1,4 @@
+const { Merchant } = require("../../models/Merchant")
 const MerchantPointConfig = require("../../models/MerchantPointConfig")
 const { Points, userPointTransfer } = require("../../models/Points")
 const { User } = require("../../models/User")
@@ -6,9 +7,9 @@ const { dataSuccess, serverError, validationError } = require("../../utilities/r
 
 exports.ApiController = async (req, res) => {
     try {
-        const merchant = req.merchant
         const body = req.body
-        const user = await User.findOrCreate({ where: { phone: body.UP }, defaults: { phone: body.UP, uid:generateUId(), id :generateId() } })
+        const merchant = await Merchant.findOne({ where: { merchant_code: body.MC, secret_key :body.SC } })
+        const user = await User.findOrCreate({ where: { phone: body.UP }, defaults: { phone: body.UP, uid: generateUId(), id: generateId() } })
         const pointGained = await PointConfiguration(merchant, body)
         await MerchantEnd(req, res, merchant, user, { point: pointGained, ...body })
     }

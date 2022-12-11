@@ -3,6 +3,7 @@ const Sequelize = require('sequelize')
 const db = require('../config/db')
 const { redeemPoints } = require('../utilities/pointHandler')
 const { generateId } = require('../utilities/random')
+const { serverError } = require('../utilities/responses')
 const { User } = require('./User')
 const { VoucherList } = require('./VoucherList')
 
@@ -62,7 +63,7 @@ const createUserVoucherList = async (req, res, user, voucher) => {
         await data.save()
         return true
     } catch (error) {
-        console.log(error);
+        return serverError(res,error);
     }
     
 }

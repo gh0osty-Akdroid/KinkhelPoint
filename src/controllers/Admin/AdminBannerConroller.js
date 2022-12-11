@@ -12,7 +12,6 @@ exports.addBanner = async (req, res) => {
     await banner.save().then((data) => {
         dataCreated(res, data)
     }).catch((err) => {
-        console.log(err);
         serverError(res, err)
     })
 

@@ -10,15 +10,15 @@ const { validationError } = require("../../utilities/responses")
 
 exports.PasswordEmailValidators = [
     check('email').notEmpty().withMessage('Please Enter Your Email.').bail()
-    .custom(async (value, { req, loc, path }) => {
-        const check = await User.findOne({where: {email: value}})
-        if(check) req.body.email =check
-        else return Promise.reject()
-    }).withMessage('The Entered Email Cannot Be Found.').bail(),
-   
-    (req,res,next) => {
+        .custom(async (value, { req, loc, path }) => {
+            const check = await User.findOne({ where: { phone: value } })
+            if (check) req.body.email = check
+            else return Promise.reject()
+        }).withMessage('The Entered Email Cannot Be Found.').bail(),
+
+    (req, res, next) => {
         const err = validationResult(req)
-        if(!err.isEmpty()) return validationError(res, err)
+        if (!err.isEmpty()) return validationError(res, err)
         next()
     }
 ]
@@ -41,10 +41,10 @@ exports.PasswordEmailValidators = [
 exports.PasswordValidators = [
     check('password').notEmpty().withMessage('Please Enter Your old password.').bail().matches(
         /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])[a-zA-Z\d@$.!%*#?&]/,
-      ).withMessage("Please use strong password with numbers, alphabets and special characters.").bail(),
-    (req,res,next) => {
+    ).withMessage("Please use strong password with numbers, alphabets and special characters.").bail(),
+    (req, res, next) => {
         const err = validationResult(req)
-        if(!err.isEmpty()) return validationError(res, err)
+        if (!err.isEmpty()) return validationError(res, err)
         next()
     }
 ]

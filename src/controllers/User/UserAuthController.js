@@ -100,7 +100,7 @@ exports.LoginVerification = async (req, res) => {
 
 exports.ResendLoginOtp = async (req, res) => {
     const user_ = req.params.user
-    console.log(user_);
+    
     const user = await User.findOne({ where: { phone: user_ } }) || await User.findOne({ where: { email: user_ } })
     if (!user) {
         responses.notFoundError(res, "user cannot be found of following credentials.")

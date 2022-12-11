@@ -44,9 +44,9 @@ const Notification = db.define('Notification', {
     site: {
         type: BIGINT,
         allowNull: false,
-        references:{
-            model:"site_settings",
-            key:"id"
+        references: {
+            model: "site_settings",
+            key: "id"
         }
     },
     seen: {
@@ -74,9 +74,9 @@ const NotificationID = db.define('NotificationID', {
     site: {
         type: BIGINT,
         allowNull: false,
-        references:{
-            model:"site_settings",
-            key:"id"
+        references: {
+            model: "site_settings",
+            key: "id"
         }
     },
     app_link: {
@@ -105,10 +105,10 @@ NotificationID.sync({ alter: false })
 const createNotification = async (req, res, data) => {
     try {
         const uid = generateUId()
-        const user = await User.findAll({ include: [{ model: UserRoles, where: { role: { [Op.like]: "Customer" } } }]})
+        const user = await User.findAll({ where: { site: req.site }, include: [{ model: UserRoles, where: { role: { [Op.like]: "Customer" } } }] })
         const a = await NotificationID.build({
             id: generateId(), uid: uid, notification_msg: data.notification_msg, "web_link": data.web_link,
-            "app_link": data.app_link, "site":req.site
+            "app_link": data.app_link, "site": req.site
         })
         await a.save()
         if (user.length > 0) {
@@ -119,12 +119,12 @@ const createNotification = async (req, res, data) => {
                     "web_link": data.web_link,
                     "app_link": data.app_link,
                     "notification_msg": data.notification_msg,
-                    "site":req.site
+                    "site": req.site
                 })
                 notification.id = generateId()
                 await notification.save()
             });
-            
+
             blankSuccess(res)
         }
     }

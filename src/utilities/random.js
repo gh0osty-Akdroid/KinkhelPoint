@@ -5,6 +5,10 @@ exports.generateId = () => {
     return parseInt(randomstring.generate({charset: 'numeric', length: 9}))
 }
 
+exports.generatePassword = () => {
+    return parseInt(randomstring.generate({charset: 'alphanumeric', length: 9}))
+}
+
 exports.generateToken = () =>{
     return Math.random().toString().substring(2, 8)
 }

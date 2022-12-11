@@ -3,6 +3,7 @@ const fs = require('fs')
 const QRCode = require('qrcode')
 const PDFDocument = require('pdfkit');
 const { dataSuccess } = require('./responses');
+const path = require('path');
 
 
 exports.addImage = async (image) => {
@@ -19,7 +20,7 @@ exports.addImage = async (image) => {
 }
 
 exports.removeImage = async (url) => {
-    var url = `${__dirname}../public/Storage/${url}`
+    var url = path.resolve(__dirname,`../public/Storage/${url}`)
     await fs.unlink(url, (err) => {
         if (err) {
             console.log(err)

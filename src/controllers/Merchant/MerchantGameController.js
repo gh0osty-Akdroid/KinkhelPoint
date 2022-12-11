@@ -66,9 +66,7 @@ exports.post = async (req, res) => {
                         }
                         await userPointTransfer(req, res, values)
                         blankSuccess(res)
-
                     }).catch((err) => {
-                        console.log(err?.response?.data)
                         errorHandler(res, err)
                     })
                 }

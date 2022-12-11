@@ -42,7 +42,6 @@ exports.Point = async (req, res) => {
 exports.requestToken = async (req, res) => {
     const user = req.user
     var { customer } = req.query
-    console.log(customer)
     try {
         if (customer) {
             await User.findOne({ where: { phone: `${customer}` } }).then((data) => {
@@ -68,7 +67,7 @@ exports.verifyToken = async (req, res) => {
         await Token.findOne({ where: { user_id: user_.id, token: body.token } }).then(async (data) => {
             data !== null ? dataSuccess(res, user_) : validationError(res, "The token has been expired. Try again later.")
         }).catch((err) => {
-            console.log(err); serverError(res, err)
+            serverError(res, err)
         })
     } else {
         await Token.findOne({ where: { user_id: user.id, token: body.token } }).then(async (data) => {

@@ -46,7 +46,6 @@ module.exports = () => {
     routes.post('/resend-login-code/:user', authController.ResendLoginOtp)
 
 
-
     // Password Routes
     routes.post("/forget-password", PasswordEmailValidators, passwordController.forget_pwd)
     routes.post("/reset-password/:email", passwordController.reset_pwd)

@@ -25,7 +25,6 @@ exports.store = async (req, res) => {
     const siteConfig = await SiteSettings.build(body)
     siteConfig.logo = image
     await siteConfig.save().then(() => blankSuccess(res)).catch(async (err) => {
-        console.log(err)
         serverError(res, err)
     })
 }

@@ -46,7 +46,7 @@ exports.getAllHistory = async (req, res) => {
     const { page, size } = req.query;
     const { limit, offset } = await getPagination(page, size);
     await Points.findOne({ where: { user_id: req.user?.phone } }).then(async (r) => {
-        const data = await PointsDetail.findAndCountAll({ where:{point_id:r.id}, limit: limit, offset: offset })
+        const data = await PointsDetail.findAndCountAll({ where:{point_id:r.id}, limit: limit, offset: offset , order:[["createdAt","DESC"]]})
         const allData = await getPagingData(data, page, limit)
         responses.dataSuccess(res, allData)
     }).catch((err) => responses.notFoundError(res, "Point detail not found."))
