@@ -79,7 +79,7 @@ exports.getPlayedGame = async (req, res) => {
 
 exports.post = async (req, res) => {
     var body = req.body
-    body = { ...body, user_id: req.user.id } 
+    body = { ...body, user_id: req.user.phone } 
 
     await Points.findOne({ where: { user_id: req.user.phone } }).then((point) => {
         if (point.points > parseFloat(body.charge) ) {
