@@ -13,7 +13,7 @@ exports.addImage = async (image) => {
     var fName = `${location}/${filename}.png`
     var dbLocation = `Uploads/${filename}.png`
     fs.writeFileSync(fName, data, { encoding: "base64" }, function (err) {
-        responses.serverError(res, err)
+        console.log(err)
     })
 
     return dbLocation

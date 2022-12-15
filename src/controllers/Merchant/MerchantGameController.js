@@ -49,7 +49,7 @@ exports.getPlayedGame = async (req, res) => {
 
 exports.post = async (req, res) => {
     var body = req.body
-    await User.findOne({ where: { phone: `+${req.body.phone}` } }).then(async user => {
+    await User.findOne({ where: { phone: body.user_id } }).then(async user => {
         if (user !== null) {
             body = { ...body, user_id: user.id, merchant_id: req.merchant.id }
             await Points.findOne({ where: { user_id: user.phone } }).then((point) => {
