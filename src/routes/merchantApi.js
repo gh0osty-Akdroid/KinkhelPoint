@@ -99,6 +99,7 @@ module.exports = () => {
     routes.get('/game/:id', MerchantMiddleware, GameController.showGame)
     routes.post('/game', MerchantMiddleware, GameValidator, GameController.post)
     routes.get('/played-game', MerchantMiddleware, GameController.getPlayedGame)
+    routes.get('/alternate-games-active', MerchantMiddleware,  GameController.getActiveAlternate)
 
 
     // Point tranfer Routes 
