@@ -79,35 +79,38 @@ exports.getPlayedGame = async (req, res) => {
 
 exports.post = async (req, res) => {
     var body = req.body
-    body = { ...body, user_id: req.user.phone } 
-    await Points.findOne({ where: { user_id: req.user.phone } }).then((point) => {
-        if (point.points > parseFloat(body.charge) ) {
-            UserGameUrl.post(`/play`, body).then(async (data) => {
-                point.points = point.points - parseFloat(body.charge)
-                await point.save()
-                const values = {
-                    "token": null,
-                    "point_id": point.id,
-                    "points": body.charge,
-                    "remarks": `You spent ${body.charge} points for playing game.`,
-                    "others": `You spent ${body.charge} points for playing game.`,
-                }
-                await userPointTransfer(req, res, values)
-                blankSuccess(res)
-                
-            }).catch((err) => {
-                errorHandlers(res, err)
-            })
-        }
-        else {
-            validationError(res, "You dont have sufficient point to play this game.")
-        }
+    body = { ...body, user_id: req.user.id }
+    try {
+        await Points.findOne({ where: { user_id: req.user.phone } }).then((point) => {
+            if (point.points > parseFloat(body.charge)) {
+                UserGameUrl.post(`/play`, body).then(async (data) => {
+                    point.points = point.points - parseFloat(body.charge)
+                    await point.save()
+                    const values = {
+                        "token": null,
+                        "point_id": point.id,
+                        "points": body.charge,
+                        "remarks": `You spent ${body.charge} points for playing game.`,
+                        "others": `You spent ${body.charge} points for playing game.`,
+                    }
+                    await userPointTransfer(req, res, values)
+                    blankSuccess(res)
+                }).catch((err) => {
+                    errorHandlers(res, err)
+                })
+            }
+            else {
+                validationError(res, "You don't have sufficient point to play this game.")
+            }
 
-    })
-
+        })
+    }
+    catch (err) {
+        serverError(res, err)
+    }
 }
 
-exports.getActiveAlternate = async(req, res) =>{
+exports.getActiveAlternate = async (req, res) => {
     UserGameUrl.get(`/games/alternate`).then((data) => {
         return dataSuccess(res, data?.data);
     }).catch((err) => {
