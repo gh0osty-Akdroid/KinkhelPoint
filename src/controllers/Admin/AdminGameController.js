@@ -119,6 +119,7 @@ exports.Winner = async (req, res) => {
 
 
 exports.AddWinner = async (req, res) => {
+    console.log(req.body)
     try {
         AdminGameUrl.post('/winners', req.body).then(data => {
             return dataSuccess(res, data?.data?.data)

@@ -18,6 +18,7 @@ exports.allUser = async(req, res)=>{
 }
 
 exports.user = async(req, res)=>{
+    console.log(req.params.user_id)
     AdminGameUrl.get(`/userGame/user/${req.params.user_id}`).then((data)=>{
         return dataSuccess(res, data?.data?.data);
     }).catch((err)=>{

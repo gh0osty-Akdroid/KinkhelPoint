@@ -68,7 +68,7 @@ exports.showGame = async (req, res) => {
 
 exports.getPlayedGame = async (req, res) => {
     const id = req.user.id
-    AdminGameUrl.get(`/userGame/user/${id}`).then((data) => {
+    AdminGameUrl.get(`/userGame/user/${req.user.phone}`).then((data) => {
         return dataSuccess(res, data?.data?.data);
     }).catch((err) => {
         errorHandlers(res, err)
