@@ -49,11 +49,10 @@ exports.getPlayedGame = async (req, res) => {
 
 exports.post = async (req, res) => {
     var body = req.body
-    console.log(req.body)
     if (body.user_id) {
         await User.findOne({ where: { phone: body.user_id } }).then(async (user) => {
             console.log(user)
-            body = { ...body, user_id: user.id, merchant_id: req.merchant.id }
+            body = { ...body, user_id: user.phone, merchant_id: req.user.phone }
             await Points.findOne({ where: { user_id: user.phone } }).then((point) => {
                 console.log(point)
                 if (point.points > parseFloat(body.charge)) {
@@ -82,7 +81,7 @@ exports.post = async (req, res) => {
 
     }
     else {
-        body = { ...body, merchant_id: req.merchant.id }
+        body = { ...body, merchant_id: req.user.phone }
         await Points.findOne({ where: { user_id: req.user.phone } }).then((point) => {
             if (point.points > parseFloat(body.charge)) {
                 MerchantGameURL.post(`/play`, body).then(async (data) => {
