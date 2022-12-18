@@ -51,8 +51,7 @@ exports.post = async (req, res) => {
     var body = req.body
     if (body.user_id) {
         await User.findOne({ where: { phone: body.user_id } }).then(async (user) => {
-            console.log(user)
-            body = { ...body, user_id: user.phone, merchant_id: req.user.phone }
+\            body = { ...body, user_id: user.phone, merchant_id: req.user.phone }
             await Points.findOne({ where: { user_id: user.phone } }).then((point) => {
                 console.log(point)
                 if (point.points > parseFloat(body.charge)) {
