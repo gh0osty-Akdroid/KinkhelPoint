@@ -109,3 +109,7 @@ exports.MerchantMiddleware = async (req, res, next) => {
     next
 }
 
+exports.SiteMiddleware = async(req, res, next) =>{
+    req.site= req.headers.site
+    next()
+}

@@ -63,7 +63,23 @@ exports.showGame = async (req, res) => {
     })
 }
 
+exports.categories = async(req, res) =>{
+    UserGameUrl.get(`/categories`).then((data) => {
+        return dataSuccess(res, data?.data);
+    }).catch((err) => {
+        errorHandlers(res, err)
+    })
 
+}
+
+exports.categoriesGames = async(req, res) =>{
+    UserGameUrl.get(`/category/${req.params.id}`).then((data) => {
+        return dataSuccess(res, data?.data?.data);
+    }).catch((err) => {
+        console.log(err)
+        errorHandlers(res, err)
+    })
+}
 
 
 exports.getPlayedGame = async (req, res) => {

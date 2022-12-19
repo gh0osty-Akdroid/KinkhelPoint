@@ -7,7 +7,7 @@ const passwordController = require('../controllers/User/UserPasswordController')
 const profileController = require('../controllers/User/UserProfileController')
 const { RegisterValidators, LoginValidators, LoginVerifyValidators } = require('../validators/User/AuthValidators')
 const { PasswordEmailValidators, PasswordTokenValidators, PasswordValidators } = require('../validators/User/PasswordValidators')
-const { UserMiddleware } = require('../middlewares/authmiddleware')
+const { UserMiddleware, SiteMiddleware } = require('../middlewares/authmiddleware')
 const voucherController = require('../controllers/User/UserVoucherController')
 const { redeemValidator } = require('../validators/User/voucherValidator')
 const pointController = require('../controllers/User/UserPointsController')
@@ -83,8 +83,10 @@ module.exports = () => {
 
     // routes Games
 
-    routes.get('/games', UserMiddleware, gamesController.show)
-    routes.get('/game/:id', UserMiddleware, gamesController.showGame)
+    routes.get('/games', SiteMiddleware, gamesController.show)
+    routes.get('/categories', SiteMiddleware, gamesController.categories)
+    routes.get('/categories/:id', SiteMiddleware, gamesController.categoriesGames)
+    routes.get('/game/:id', SiteMiddleware, gamesController.showGame)
 
 
     routes.post('/play-game', UserMiddleware,GameValidator, gamesController.post)
