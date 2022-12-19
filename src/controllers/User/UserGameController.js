@@ -64,7 +64,7 @@ exports.showGame = async (req, res) => {
 }
 
 exports.categories = async(req, res) =>{
-    UserGameUrl.get(`/categories`).then((data) => {
+    UserGameUrl.get(`/categories?site=${req.query.site}`).then((data) => {
         return dataSuccess(res, data?.data);
     }).catch((err) => {
         errorHandlers(res, err)
